@@ -247,6 +247,7 @@ model ReferralVendedor {
   id            String   @id @default(cuid())
   nombre        String
   celular       String
+  cedula        String?  // Cédula del vendedor (existente en producción)
   negocio       String
   direccion     String
   codigoUnico   String   @unique // 8 caracteres, ej: "X7K9M2A1"
@@ -257,6 +258,7 @@ model ReferralVendedor {
   // Relaciones
   leads         ReferralLead[]
   comisiones    ReferralComision[]
+  alianza       AlianzaContract?
 }
 
 // ReferralLead: registro de cada teléfono que escaneó un QR
@@ -294,6 +296,34 @@ model ReferralComision {
 
   @@index([vendedorId])
   @@index([transactionId])
+}
+
+// AlianzaContract: contrato firmado del Programa de Aliados Comerciales (producción).
+// Preservado para no perder datos existentes en la DB compartida.
+model AlianzaContract {
+  id               String   @id @default(cuid())
+  vendedorId       String   @unique
+  fechaAsignacion  DateTime @default(now())
+  zonaTerritorio   String?
+  diasPagoComision Int
+  metodoPago       String
+  ciudadFirma      String
+  diaFirma         Int
+  mesFirma         String
+  anioFirma        Int
+
+  pdfBytes         Bytes    @db.LongBlob
+  pdfMimeType      String   @default("application/pdf")
+  pdfSize          Int
+
+  ipAceptacion     String?
+  userAgent        String?  @db.Text
+  aceptadoAt       DateTime @default(now())
+
+  vendedor         ReferralVendedor @relation(fields: [vendedorId], references: [id], onDelete: Cascade)
+
+  @@index([aceptadoAt])
+  @@index([metodoPago])
 }
 
 // ============================================================

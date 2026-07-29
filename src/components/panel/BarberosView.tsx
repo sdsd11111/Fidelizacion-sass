@@ -357,7 +357,8 @@ export default function BarberosView({
       )}
 
       {/* Banner Principal del Entrenador/Barbero seleccionado */}
-      {selectedStaff && whatsappNumber && (
+      {/* QR Banner del Profesional seleccionado (SOLO Barbería) */}
+      {selectedStaff && whatsappNumber && !isGym && (
         <div className={`${bgCard} relative overflow-hidden flex flex-col md:flex-row items-stretch`}>
           {/* Izquierdo: QR y Texto */}
           <div className="p-5 sm:p-8 flex-1 flex flex-col justify-between space-y-4 md:space-y-6 z-10">
@@ -396,7 +397,7 @@ export default function BarberosView({
                   />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-center p-2">
-                    <span className="text-3xl opacity-40 mb-1">{isGym ? "🏋️" : "💈"}</span>
+                    <span className="text-3xl opacity-40 mb-1">💈</span>
                     <span className={`font-mono text-[9px] ${textMut}`}>Sin Foto</span>
                   </div>
                 )}
@@ -433,15 +434,13 @@ export default function BarberosView({
                 <div
                   className="absolute inset-0 opacity-80"
                   style={{
-                    background: isGym
-                      ? "linear-gradient(to right, rgba(17,24,39,0.9), transparent)"
-                      : "linear-gradient(to right, rgba(19,17,16,0.9), transparent)",
+                    background: "linear-gradient(to right, rgba(19,17,16,0.9), transparent)",
                   }}
                 />
               </>
             ) : (
               <div className={`w-full h-full flex flex-col items-center justify-center p-8 text-center ${bgDark} border-l ${borderC}`}>
-                <span className="text-5xl opacity-40 mb-2">{isGym ? "🏋️" : "💈"}</span>
+                <span className="text-5xl opacity-40 mb-2">💈</span>
                 <p className={`font-mono text-xs ${textMut}`}>Sin foto configurada</p>
                 <a
                   href="/panel/whatsapp"

@@ -212,10 +212,14 @@ export default function BarberosView({
   const reviewsList = selectedStaff ? selectedStaff.reviews : [];
   const visibleReviews = reviewsList.slice(0, visibleReviewsCount);
 
-  // QR General de Caja
+  // QR General de Calificación
+  const generalQrMsg = isGym
+    ? `Hola, quiero calificar el servicio mi codigo es ${currentBoxCode}`
+    : `Hola, mi código de caja es ${currentBoxCode}`;
+
   const generalQrUrl = whatsappNumber
     ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-        `https://wa.me/${whatsappNumber}?text=Hola,%20mi%20código%20de%20caja%20es%20${currentBoxCode}`
+        `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(generalQrMsg)}`
       )}`
     : "";
 

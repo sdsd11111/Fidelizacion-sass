@@ -109,7 +109,9 @@ export default function WalletConfigSection({
 
   const qrGeneralEvaluacionUrl = whatsappNumber && currentBoxCode
     ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-        `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(currentBoxCode)}`
+        `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+          `Hola, quiero calificar el servicio mi codigo es ${currentBoxCode}`
+        )}`
       )}`
     : "";
 

@@ -357,35 +357,36 @@ export default function BarberosView({
       )}
 
       {/* Banner Principal del Entrenador/Barbero seleccionado */}
-      {/* QR Banner del Profesional seleccionado (SOLO Barbería) */}
-      {selectedStaff && whatsappNumber && !isGym && (
+      {selectedStaff && (
         <div className={`${bgCard} relative overflow-hidden flex flex-col md:flex-row items-stretch`}>
-          {/* Izquierdo: QR y Texto */}
+          {/* Izquierdo: Info del Entrenador/Barbero (y QR solo en Barberías) */}
           <div className="p-5 sm:p-8 flex-1 flex flex-col justify-between space-y-4 md:space-y-6 z-10">
             <div className="flex flex-row items-start justify-between md:justify-start gap-4 sm:gap-6">
-              {/* QR + Botón Descargar */}
-              <div className="flex flex-col items-center gap-2 shrink-0">
-                <p className={`font-mono text-[9px] sm:text-[10px] tracking-[0.25em] uppercase ${textMut}`}>
-                  QR DE {selectedStaff.name.toUpperCase()}
-                </p>
-                {(() => {
-                  const qrUrl = buildStaffQrUrl(whatsappNumber, currentBoxCode, selectedStaff.name);
-                  return (
-                    <>
-                      <div className="bg-white p-2 sm:p-3 w-28 h-28 sm:w-36 sm:h-36">
-                        <div
-                          className="w-full h-full"
-                          style={{
-                            backgroundImage: `url('${qrUrl}')`,
-                            backgroundSize: "cover",
-                          }}
-                        />
-                      </div>
-                      <DownloadQRButton qrUrl={qrUrl} barbershopName={selectedStaff.name} />
-                    </>
-                  );
-                })()}
-              </div>
+              {/* QR + Botón Descargar (SOLO BARBERÍA) */}
+              {!isGym && whatsappNumber && (
+                <div className="flex flex-col items-center gap-2 shrink-0">
+                  <p className={`font-mono text-[9px] sm:text-[10px] tracking-[0.25em] uppercase ${textMut}`}>
+                    QR DE {selectedStaff.name.toUpperCase()}
+                  </p>
+                  {(() => {
+                    const qrUrl = buildStaffQrUrl(whatsappNumber, currentBoxCode, selectedStaff.name);
+                    return (
+                      <>
+                        <div className="bg-white p-2 sm:p-3 w-28 h-28 sm:w-36 sm:h-36">
+                          <div
+                            className="w-full h-full"
+                            style={{
+                              backgroundImage: `url('${qrUrl}')`,
+                              backgroundSize: "cover",
+                            }}
+                          />
+                        </div>
+                        <DownloadQRButton qrUrl={qrUrl} barbershopName={selectedStaff.name} />
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
 
               {/* Foto en móvil */}
               <div className={`md:hidden w-28 h-36 sm:w-32 sm:h-44 shrink-0 border ${borderC} ${bgDark} overflow-hidden relative shadow-md`}>
@@ -397,32 +398,38 @@ export default function BarberosView({
                   />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-center p-2">
-                    <span className="text-3xl opacity-40 mb-1">💈</span>
+                    <span className="text-3xl opacity-40 mb-1">{isGym ? "🏋️" : "💈"}</span>
                     <span className={`font-mono text-[9px] ${textMut}`}>Sin Foto</span>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Texto explicativo */}
+            {/* Texto explicativo / Perfil del profesional */}
             <div className="space-y-2 pt-2 md:pt-0">
+              <span className={`font-mono text-[10px] uppercase tracking-widest ${isGym ? "text-blue-400" : "text-amber-500"}`}>
+                {isGym ? "Perfil del Entrenador" : "Perfil del Barbero"}
+              </span>
               <h3 className={`font-display text-2xl sm:text-3xl font-light ${textPri}`}>
-                Código QR exclusivo de {selectedStaff.name}
+                {selectedStaff.name}
               </h3>
               <p className={`font-mono text-xs ${textMut} leading-relaxed max-w-xl`}>
-                El cliente escanea este QR y el sistema{" "}
-                <strong className="font-normal" style={{ color: accent }}>automáticamente sabe</strong>{" "}
-                que fue atendido por <span className={textSec}>{selectedStaff.name}</span>, sin necesidad de preguntarle por WhatsApp.
-              </p>
-              <p className={`font-mono text-xs ${textMut}`}>
-                Código de caja activo:{" "}
-                <span className="font-bold" style={{ color: accent }}>{currentBoxCode}</span>{" "}
-                — se actualiza con cada check-in
+                {isGym ? (
+                  <>
+                    Los miembros escanean el <strong className="font-normal" style={{ color: accent }}>QR General del Gimnasio</strong> y seleccionan a <span className={textSec}>{selectedStaff.name}</span> al responder por WhatsApp.
+                  </>
+                ) : (
+                  <>
+                    El cliente escanea su QR exclusivo y el sistema{" "}
+                    <strong className="font-normal" style={{ color: accent }}>automáticamente sabe</strong>{" "}
+                    que fue atendido por <span className={textSec}>{selectedStaff.name}</span>.
+                  </>
+                )}
               </p>
             </div>
           </div>
 
-          {/* Derecho: Foto escritorio */}
+          {/* Derecho: Foto en escritorio */}
           <div className={`hidden md:flex w-80 lg:w-96 shrink-0 relative min-h-full overflow-hidden items-center justify-center ${bgDark}`}>
             {selectedStaff.photoUrl ? (
               <>
@@ -434,13 +441,15 @@ export default function BarberosView({
                 <div
                   className="absolute inset-0 opacity-80"
                   style={{
-                    background: "linear-gradient(to right, rgba(19,17,16,0.9), transparent)",
+                    background: isGym
+                      ? "linear-gradient(to right, rgba(15,32,64,0.9), transparent)"
+                      : "linear-gradient(to right, rgba(19,17,16,0.9), transparent)",
                   }}
                 />
               </>
             ) : (
               <div className={`w-full h-full flex flex-col items-center justify-center p-8 text-center ${bgDark} border-l ${borderC}`}>
-                <span className="text-5xl opacity-40 mb-2">💈</span>
+                <span className="text-5xl opacity-40 mb-2">{isGym ? "🏋️" : "💈"}</span>
                 <p className={`font-mono text-xs ${textMut}`}>Sin foto configurada</p>
                 <a
                   href="/panel/whatsapp"

@@ -16,12 +16,21 @@ interface WalletTx {
   createdAt: string;
 }
 
+interface PlanConfigItem {
+  id: string;
+  name: string;
+  price: number;
+  percentage: number;
+}
+
 export default function WalletPendingList({
   transactions,
+  plans = [],
   onRefresh,
   vertical = "GIMNASIO",
 }: {
   transactions: WalletTx[];
+  plans?: PlanConfigItem[];
   onRefresh: () => void;
   vertical?: string;
 }) {
@@ -30,10 +39,11 @@ export default function WalletPendingList({
 
   const [selectedTx, setSelectedTx] = useState<WalletTx | null>(null);
 
-  // Campos modal de aprobación Tienda
+  // Campos modal de aprobación Tienda o Mensualidad
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState("");
   const [percentage, setPercentage] = useState("10"); // Default 10%
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
 
   const [loading, setLoading] = useState(false);
 
@@ -49,6 +59,16 @@ export default function WalletPendingList({
       setProductName(tx.productName || "");
       setPrice(tx.amount > 0 ? tx.amount.toString() : "");
       setPercentage(tx.percentage > 0 ? tx.percentage.toString() : "10");
+    } else {
+      const defaultPlan = plans[0];
+      if (defaultPlan) {
+        setSelectedPlanId(defaultPlan.id);
+        setPrice(defaultPlan.price.toString());
+        setPercentage(defaultPlan.percentage.toString());
+      } else {
+        setPrice(tx.amount > 0 ? tx.amount.toString() : "0");
+        setPercentage(tx.percentage > 0 ? tx.percentage.toString() : "0");
+      }
     }
   };
 
@@ -72,6 +92,16 @@ export default function WalletPendingList({
           productName: productName.trim() || "Producto de Tienda",
           amount: parsedPrice,
           percentage: parsedPct,
+        };
+      } else {
+        const parsedPrice = parseFloat(price);
+        const parsedPct = parseFloat(percentage);
+        const selectedPlan = plans.find((p) => p.id === selectedPlanId);
+
+        bodyData = {
+          amount: isNaN(parsedPrice) ? 0 : parsedPrice,
+          percentage: isNaN(parsedPct) ? 0 : parsedPct,
+          planName: selectedPlan ? selectedPlan.name : selectedTx.planName,
         };
       }
 
@@ -247,11 +277,62 @@ export default function WalletPendingList({
                 </div>
               </div>
             ) : (
-              <div className="p-3 bg-emerald-950/40 border border-emerald-800/40 rounded-xl text-center space-y-1">
-                <p className="font-mono text-xs text-slate-300">Plan: {selectedTx.planName}</p>
-                <p className="font-display text-2xl font-bold text-emerald-400">
-                  +${selectedTx.credit.toFixed(2)} ({selectedTx.percentage}%)
-                </p>
+              <div className="space-y-4">
+                {plans.length > 0 ? (
+                  <div>
+                    <label className={`font-mono text-[10px] uppercase ${textMut} block mb-1`}>
+                      Selecciona el Plan Adquirido por el Referido
+                    </label>
+                    <select
+                      value={selectedPlanId}
+                      onChange={(e) => {
+                        setSelectedPlanId(e.target.value);
+                        const selected = plans.find((p) => p.id === e.target.value);
+                        if (selected) {
+                          setPrice(selected.price.toString());
+                          setPercentage(selected.percentage.toString());
+                        }
+                      }}
+                      className="w-full bg-[#0a1628] border border-white/15 text-white px-3 py-2 rounded-xl font-mono text-xs focus:outline-none focus:border-emerald-400"
+                    >
+                      {plans.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} — ${p.price.toFixed(2)} (Comisión: {p.percentage}%)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : null}
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={`font-mono text-[10px] uppercase ${textMut} block mb-1`}>Precio del Plan ($)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      className="w-full bg-[#0a1628] border border-white/15 text-white px-3 py-2 rounded-xl font-mono text-xs focus:outline-none focus:border-emerald-400"
+                    />
+                  </div>
+                  <div>
+                    <label className={`font-mono text-[10px] uppercase ${textMut} block mb-1`}>% Comisión</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={percentage}
+                      onChange={(e) => setPercentage(e.target.value)}
+                      className="w-full bg-[#0a1628] border border-white/15 text-white px-3 py-2 rounded-xl font-mono text-xs focus:outline-none focus:border-emerald-400"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3 bg-emerald-950/40 border border-emerald-800/40 rounded-xl text-center">
+                  <span className="font-mono text-xs text-slate-300">Comisión a acreditar en Wallet:</span>
+                  <p className="font-display text-2xl font-bold text-emerald-400">
+                    +${calculatedCredit}
+                  </p>
+                </div>
               </div>
             )}
 

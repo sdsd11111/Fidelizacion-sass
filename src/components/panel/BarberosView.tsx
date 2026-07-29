@@ -151,16 +151,18 @@ function StaffCard({
           </div>
         </div>
 
-        {/* QR mini — siempre fondo blanco para legibilidad */}
-        <div className="shrink-0 bg-white p-1 w-12 h-12 sm:w-14 sm:h-14">
-          <div
-            className="w-full h-full"
-            style={{
-              backgroundImage: `url('${qrUrl}')`,
-              backgroundSize: "cover",
-            }}
-          />
-        </div>
+        {/* QR mini — solo para barberías (en gimnasio solo hay 1 QR general) */}
+        {!isGym && (
+          <div className="shrink-0 bg-white p-1 w-12 h-12 sm:w-14 sm:h-14">
+            <div
+              className="w-full h-full"
+              style={{
+                backgroundImage: `url('${qrUrl}')`,
+                backgroundSize: "cover",
+              }}
+            />
+          </div>
+        )}
       </div>
     </button>
   );

@@ -333,25 +333,42 @@ async function processMessage(payload: WebhookPayload) {
     ]);
 
     if (isGym) {
-      // En Gimnasio: transicionar inmediatamente a pedir calificación (AWAITING_RATING)
-      await prisma.barberCustomer.update({
-        where: { id: customer.id },
-        data: { sessionState: "AWAITING_RATING" },
+      // En Gimnasio: auto-aprobar visita. Si hay entrenadores registrados, pedir selección de entrenador primero (AWAITING_STAFF)
+      const staffMembers = await prisma.barberStaff.findMany({
+        where: { barbershopId: barbershop.id },
+        orderBy: { name: "asc" },
       });
 
-      // Obtener nombre del staff preasignado si existe
-      let staffNameText = "nosotros";
-      if (preAssignedStaffId) {
-        const staffObj = await prisma.barberStaff.findUnique({ where: { id: preAssignedStaffId } });
-        if (staffObj) staffNameText = staffObj.name;
-      }
+      if (staffMembers.length > 0) {
+        await prisma.barberCustomer.update({
+          where: { id: customer.id },
+          data: { sessionState: "AWAITING_STAFF" },
+        });
 
-      sendWhatsAppMessage({
-        instance: barbershop.evolutionInstance,
-        apiKey: barbershop.evolutionApiKey,
-        to: whatsapp,
-        message: `💪 ¡Gracias por tu visita a ${barbershop.name}!\n\nPor último, del 1 al 5, ¿cómo calificas tu experiencia con ${staffNameText} hoy? ⭐`,
-      }).catch((err) => console.error("[WA Reply Gym] Error:", err));
+        const optionsText = staffMembers
+          .map((s, idx) => `${idx + 1}. ${s.name}`)
+          .join("\n");
+
+        sendWhatsAppMessage({
+          instance: barbershop.evolutionInstance,
+          apiKey: barbershop.evolutionApiKey,
+          to: whatsapp,
+          message: `💪 ¡Gracias por tu visita a ${barbershop.name}!\n\nPor favor, responde con el número de la persona o entrenador que te atendió hoy:\n\n${optionsText}`,
+        }).catch((err) => console.error("[WA Reply Gym] Error:", err));
+      } else {
+        // Si no hay entrenadores creados, ir directo a calificar el gimnasio
+        await prisma.barberCustomer.update({
+          where: { id: customer.id },
+          data: { sessionState: "AWAITING_RATING" },
+        });
+
+        sendWhatsAppMessage({
+          instance: barbershop.evolutionInstance,
+          apiKey: barbershop.evolutionApiKey,
+          to: whatsapp,
+          message: `💪 ¡Gracias por tu visita a ${barbershop.name}!\n\nDel 1 al 5, ¿cómo calificas tu experiencia hoy? ⭐`,
+        }).catch((err) => console.error("[WA Reply Gym] Error:", err));
+      }
     } else {
       // PRIORIDAD 1: Enviar respuesta por WhatsApp PRIMERO (latencia mínima para el cliente)
       sendWhatsAppMessage({

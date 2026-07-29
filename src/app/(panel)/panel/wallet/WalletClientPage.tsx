@@ -17,6 +17,7 @@ export default function WalletClientPage({
   const [activeTab, setActiveTab] = useState<"pending" | "balances">("pending");
   const [pendingTxs, setPendingTxs] = useState([]);
   const [balances, setBalances] = useState([]);
+  const [configPlans, setConfigPlans] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const bgCard = isGym ? "bg-[#0f2040]/80 backdrop-blur-xl border border-white/15 rounded-2xl" : "bg-[#131110] border border-[#2a2520]";
@@ -28,9 +29,10 @@ export default function WalletClientPage({
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [resPending, resBalances] = await Promise.all([
+      const [resPending, resBalances, resConfig] = await Promise.all([
         fetch("/api/wallet/transactions?status=PENDING"),
         fetch("/api/wallet/balances"),
+        fetch("/api/wallet/config"),
       ]);
 
       if (resPending.ok) {
@@ -41,6 +43,13 @@ export default function WalletClientPage({
       if (resBalances.ok) {
         const bData = await resBalances.json();
         setBalances(bData);
+      }
+
+      if (resConfig.ok) {
+        const cData = await resConfig.json();
+        if (cData.plans && Array.isArray(cData.plans)) {
+          setConfigPlans(cData.plans);
+        }
       }
     } catch (e) {
       console.error("Error cargando datos de Wallet:", e);
@@ -123,7 +132,7 @@ export default function WalletClientPage({
           <p className={`font-mono text-xs ${textMut} animate-pulse`}>Cargando información de Wallet...</p>
         </div>
       ) : activeTab === "pending" ? (
-        <WalletPendingList transactions={pendingTxs} onRefresh={fetchData} vertical={vertical} />
+        <WalletPendingList transactions={pendingTxs} plans={configPlans} onRefresh={fetchData} vertical={vertical} />
       ) : (
         <WalletBalanceTable balances={balances} onRefresh={fetchData} vertical={vertical} />
       )}

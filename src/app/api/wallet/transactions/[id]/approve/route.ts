@@ -27,6 +27,7 @@ export async function POST(
   let finalPercentage = tx.percentage;
   let finalCredit = tx.credit;
   let finalProductName = tx.productName;
+  let finalPlanName = tx.planName;
 
   if (tx.type === "TIENDA") {
     finalAmount = Number(amount) || 0;
@@ -40,6 +41,9 @@ export async function POST(
       finalPercentage = Number(percentage);
       finalCredit = (finalAmount * finalPercentage) / 100;
     }
+    if (body.planName) {
+      finalPlanName = body.planName;
+    }
   }
 
   const updatedTx = await prisma.walletTransaction.update({
@@ -50,6 +54,7 @@ export async function POST(
       percentage: finalPercentage,
       credit: finalCredit,
       productName: finalProductName,
+      planName: finalPlanName,
       adminNote: adminNote || null,
       processedAt: new Date(),
     },

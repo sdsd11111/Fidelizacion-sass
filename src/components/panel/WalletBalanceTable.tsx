@@ -140,17 +140,17 @@ export default function WalletBalanceTable({
   return (
     <div className="space-y-4">
       {/* Buscador de cliente por nombre o teléfono */}
-      <div className="flex justify-between items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-4">
         <div className="relative flex-1 max-w-md">
           <input
             type="text"
-            placeholder="🔍 Buscar cliente por nombre o número de WhatsApp..."
+            placeholder="🔍 Buscar por nombre o WhatsApp..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
               setPage(1);
             }}
-            className={`w-full border px-4 py-2.5 font-mono text-xs focus:outline-none transition-all ${
+            className={`w-full border px-3 sm:px-4 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs focus:outline-none transition-all ${
               isGym
                 ? "bg-[#0a1628] border-white/15 text-white focus:border-blue-400 rounded-xl placeholder:text-slate-500"
                 : "bg-[#0a0807] border-[#2a2520] text-[#f3ece1] focus:border-[#d97644]"
@@ -168,8 +168,8 @@ export default function WalletBalanceTable({
             </button>
           )}
         </div>
-        <span className={`font-mono text-xs ${textMut}`}>
-          Mostrando {displayedBalances.length} de {balances.length} clientes (Máx. 10 por vista)
+        <span className={`font-mono text-[9px] sm:text-xs ${textMut}`}>
+          {displayedBalances.length} de {balances.length} clientes
         </span>
       </div>
 
@@ -187,14 +187,15 @@ export default function WalletBalanceTable({
         </div>
       ) : (
         <div className="space-y-3">
-          <div className={`${bgCard} overflow-hidden`}>
+          {/* DESKTOP: Tabla normal */}
+          <div className={`${bgCard} overflow-hidden hidden md:block`}>
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className={`border-b ${borderC} font-mono text-[10px] uppercase ${textMut} bg-white/5`}>
                   <th className="p-4">Cliente / Referidor</th>
                   <th className="p-4">WhatsApp</th>
                   <th className="p-4">Operaciones</th>
-                  <th className="p-4">Saldo Acumulado</th>
+                  <th className="p-4">Saldo</th>
                   <th className="p-4 text-right">Acción</th>
                 </tr>
               </thead>
@@ -204,11 +205,11 @@ export default function WalletBalanceTable({
                   <td className="p-4">
                     <p className={`font-bold ${textPri}`}>{b.customerName}</p>
                     <span className={`text-[10px] ${textMut}`}>
-                      Última actividad: {new Date(b.lastActivity).toLocaleDateString("es-EC")}
+                      {new Date(b.lastActivity).toLocaleDateString("es-EC")}
                     </span>
                   </td>
                   <td className={`p-4 ${textSec}`}>+{b.customerPhone}</td>
-                  <td className={`p-4 ${textMut}`}>{b.txCount} transacciones</td>
+                  <td className={`p-4 ${textMut}`}>{b.txCount} txs</td>
                   <td className="p-4 font-display text-xl font-bold text-emerald-400">
                     ${b.balance.toFixed(2)}
                   </td>
@@ -224,7 +225,7 @@ export default function WalletBalanceTable({
                       disabled={b.balance <= 0}
                       className="px-3 py-1.5 font-mono text-[10px] font-bold uppercase bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all disabled:opacity-40"
                     >
-                      💸 Registar Canje
+                      💸 Canje
                     </button>
                   </td>
                 </tr>
@@ -233,13 +234,46 @@ export default function WalletBalanceTable({
           </table>
         </div>
 
+          {/* MOBILE: Cards */}
+          <div className="md:hidden grid grid-cols-1 gap-3">
+            {displayedBalances.map((b) => (
+              <div key={b.customerPhone} className={`${bgCard} p-4 space-y-3`}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className={`font-mono text-sm font-bold ${textPri}`}>{b.customerName}</p>
+                    <p className={`font-mono text-[10px] ${textMut}`}>+{b.customerPhone}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-display text-xl font-bold text-emerald-400">${b.balance.toFixed(2)}</p>
+                    <span className={`font-mono text-[9px] ${textMut}`}>{b.txCount} operaciones</span>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openHistoryDrawer(b)}
+                    className={`flex-1 py-2 font-mono text-[10px] uppercase border border-white/15 ${textSec} hover:bg-white/10 rounded-xl transition-all text-center`}
+                  >
+                    📜 Historial
+                  </button>
+                  <button
+                    onClick={() => openRedeemModal(b)}
+                    disabled={b.balance <= 0}
+                    className="flex-1 py-2 font-mono text-[10px] font-bold uppercase bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all disabled:opacity-40 text-center"
+                  >
+                    💸 Canje
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
         {!searchQuery && displayedBalances.length < filteredBalances.length && (
           <div className="flex justify-center pt-2">
             <button
               onClick={() => setPage((prev) => prev + 1)}
               className={`px-5 py-2 font-mono text-xs uppercase tracking-wider border border-white/20 hover:bg-white/10 ${textPri} rounded-xl transition-all`}
             >
-              Cargar más clientes (+10)
+              Cargar más (+10)
             </button>
           </div>
         )}

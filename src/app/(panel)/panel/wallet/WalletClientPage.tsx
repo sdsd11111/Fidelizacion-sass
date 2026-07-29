@@ -67,29 +67,29 @@ export default function WalletClientPage({
   return (
     <div className="space-y-6">
       {/* HEADER HERO */}
-      <div className={`${bgCard} p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6`}>
+      <div className={`${bgCard} p-4 sm:p-6 md:p-8 flex flex-col gap-4 sm:gap-6`}>
         <div>
-          <span className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: accent }}>
+          <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.3em] uppercase" style={{ color: accent }}>
             SISTEMA DE FIDELIZACIÓN & CASHBACK
           </span>
-          <h1 className={`font-display text-4xl sm:text-5xl font-light ${textPri} mt-1`}>
+          <h1 className={`font-display text-2xl sm:text-4xl md:text-5xl font-light ${textPri} mt-1`}>
             Wallet de {shopName}
           </h1>
-          <p className={`font-mono text-xs ${textMut} mt-2 max-w-xl leading-relaxed`}>
+          <p className={`font-mono text-[10px] sm:text-xs ${textMut} mt-2 max-w-xl leading-relaxed`}>
             Administra las compras en tienda, las comisiones por referir mensualidades y los canjes de tus miembros en tiempo real.
           </p>
         </div>
 
-        <div className="flex items-center gap-6 bg-white/5 border border-white/10 p-4 rounded-2xl shrink-0">
+        <div className="flex items-center gap-4 sm:gap-6 bg-white/5 border border-white/10 p-3 sm:p-4 rounded-2xl w-fit">
           <div>
-            <span className={`font-mono text-[9px] uppercase ${textMut}`}>Saldo Total Acumulado</span>
-            <p className="font-display text-3xl font-bold text-emerald-400">
+            <span className={`font-mono text-[8px] sm:text-[9px] uppercase ${textMut}`}>Saldo Total</span>
+            <p className="font-display text-xl sm:text-3xl font-bold text-emerald-400">
               ${totalGymCredit.toFixed(2)}
             </p>
           </div>
-          <div className="border-l border-white/10 pl-6">
-            <span className={`font-mono text-[9px] uppercase ${textMut}`}>Miembros con Saldo</span>
-            <p className={`font-display text-3xl font-bold ${textPri}`}>
+          <div className="border-l border-white/10 pl-4 sm:pl-6">
+            <span className={`font-mono text-[8px] sm:text-[9px] uppercase ${textMut}`}>Miembros</span>
+            <p className={`font-display text-xl sm:text-3xl font-bold ${textPri}`}>
               {balances.length}
             </p>
           </div>
@@ -97,18 +97,18 @@ export default function WalletClientPage({
       </div>
 
       {/* TABS NAVEGACIÓN */}
-      <div className="flex gap-3 border-b border-white/15 pb-2">
+      <div className="flex gap-2 sm:gap-3 border-b border-white/15 pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab("pending")}
-          className={`px-5 py-2.5 font-mono text-xs tracking-wider uppercase font-bold transition-all flex items-center gap-2 ${
+          className={`px-3 sm:px-5 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs tracking-wider uppercase font-bold transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
             activeTab === "pending"
               ? "bg-blue-600 text-white rounded-xl shadow-lg"
               : `${textMut} hover:text-white hover:bg-white/5 rounded-xl`
           }`}
         >
-          <span>Solicitudes Pendientes</span>
+          <span>Pendientes</span>
           {pendingTxs.length > 0 && (
-            <span className="bg-amber-500 text-black px-2 py-0.5 rounded-full text-[10px] font-bold animate-pulse">
+            <span className="bg-amber-500 text-black px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold animate-pulse">
               {pendingTxs.length}
             </span>
           )}
@@ -116,13 +116,13 @@ export default function WalletClientPage({
 
         <button
           onClick={() => setActiveTab("balances")}
-          className={`px-5 py-2.5 font-mono text-xs tracking-wider uppercase font-bold transition-all ${
+          className={`px-3 sm:px-5 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs tracking-wider uppercase font-bold transition-all whitespace-nowrap ${
             activeTab === "balances"
               ? "bg-blue-600 text-white rounded-xl shadow-lg"
               : `${textMut} hover:text-white hover:bg-white/5 rounded-xl`
           }`}
         >
-          Saldos y Canjes ({balances.length})
+          Saldos ({balances.length})
         </button>
       </div>
 

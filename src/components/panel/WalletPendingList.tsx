@@ -150,9 +150,9 @@ export default function WalletPendingList({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {transactions.map((tx) => (
-            <div key={tx.id} className={`${bgCard} p-5 space-y-4`}>
+            <div key={tx.id} className={`${bgCard} p-3 sm:p-5 space-y-3 sm:space-y-4`}>
               <div className="flex justify-between items-start">
                 <div>
                   <span

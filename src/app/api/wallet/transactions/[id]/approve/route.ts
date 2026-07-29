@@ -77,34 +77,56 @@ export async function POST(
     select: { evolutionInstance: true, evolutionApiKey: true, name: true },
   });
 
+  console.log("[Wallet Approve] barbershop:", barbershop?.name, "instance:", barbershop?.evolutionInstance ? "YES" : "NO");
+  console.log("[Wallet Approve] tx.type:", tx.type, "tx.customerPhone:", tx.customerPhone);
+  console.log("[Wallet Approve] finalCredit:", finalCredit, "totalBalance:", totalBalance);
+
   if (barbershop && barbershop.evolutionInstance) {
-    const { sendWhatsAppMessage } = await import("@/lib/evolution");
+    try {
+      const { sendWhatsAppMessage } = await import("@/lib/evolution");
 
-    let waMessage = "";
-    if (tx.type === "TIENDA") {
-      const prodText = finalProductName ? ` por "${finalProductName}"` : "";
-      waMessage = `🎉 *¡Compra Aprobada en ${barbershop.name}!*\n\nHola ${tx.customerName}, tu compra${prodText} ($${finalAmount.toFixed(
-        2
-      )}) ha sido verificada.\n\n✨ *Monto acreditado:* +$${finalCredit.toFixed(2)} (${finalPercentage}%)\n💰 *Tu Saldo Total en Wallet:* $${totalBalance.toFixed(
-        2
-      )}\n\n¡Gracias por tu compra! 💪`;
-    } else if (tx.type === "MENSUALIDAD") {
-      const planText = finalPlanName ? ` por el plan "${finalPlanName}"` : "";
-      waMessage = `💪 *¡Comisión por Referido Acreditada en ${barbershop.name}!*\n\nHola ${tx.customerName}, tu reporte de referido${planText} ha sido aprobado por el administrador.\n\n✨ *Comisión ganada:* +$${finalCredit.toFixed(
-        2
-      )} (${finalPercentage}%)\n💰 *Tu Saldo Total en Wallet:* $${totalBalance.toFixed(
-        2
-      )}\n\n¡Sigue refiriendo a más amigos para acumular más saldo! 🔥`;
-    }
+      let waMessage = "";
+      if (tx.type === "TIENDA") {
+        const prodText = finalProductName ? ` por "${finalProductName}"` : "";
+        waMessage = [
+          `🎉 *¡Compra Aprobada en ${barbershop.name}!*`,
+          ``,
+          `Hola ${tx.customerName}, tu compra${prodText} ($${finalAmount.toFixed(2)}) ha sido verificada.`,
+          ``,
+          `✨ *Monto acreditado:* +$${finalCredit.toFixed(2)} (${finalPercentage}%)`,
+          `💰 *Tu Saldo Total en Wallet:* $${totalBalance.toFixed(2)}`,
+          ``,
+          `¡Gracias por tu compra! 💪`,
+        ].join("\n");
+      } else if (tx.type === "MENSUALIDAD") {
+        const planText = finalPlanName ? ` por el plan "${finalPlanName}"` : "";
+        waMessage = [
+          `💪 *¡Comisión por Referido Acreditada en ${barbershop.name}!*`,
+          ``,
+          `Hola ${tx.customerName}, tu reporte de referido${planText} ha sido aprobado por el administrador.`,
+          ``,
+          `✨ *Comisión ganada:* +$${finalCredit.toFixed(2)} (${finalPercentage}%)`,
+          `💰 *Tu Saldo Total en Wallet:* $${totalBalance.toFixed(2)}`,
+          ``,
+          `¡Sigue refiriendo a más amigos para acumular más saldo! 🔥`,
+        ].join("\n");
+      }
 
-    if (waMessage) {
-      sendWhatsAppMessage({
-        instance: barbershop.evolutionInstance,
-        apiKey: barbershop.evolutionApiKey,
-        to: tx.customerPhone,
-        message: waMessage,
-      }).catch((e) => console.error("[Wallet Approval WA Error]:", e));
+      if (waMessage) {
+        console.log("[Wallet Approve] Sending WA message to:", tx.customerPhone);
+        await sendWhatsAppMessage({
+          instance: barbershop.evolutionInstance,
+          apiKey: barbershop.evolutionApiKey,
+          to: tx.customerPhone,
+          message: waMessage,
+        });
+        console.log("[Wallet Approve] WA message sent successfully!");
+      }
+    } catch (e) {
+      console.error("[Wallet Approval WA Error]:", e);
     }
+  } else {
+    console.warn("[Wallet Approve] No barbershop or no evolutionInstance found, cannot send WA message");
   }
 
   return NextResponse.json(updatedTx);

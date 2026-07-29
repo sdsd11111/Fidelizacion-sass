@@ -543,7 +543,7 @@ export default function BarberosView({
                         )}
                       </div>
                       {rev.comment && (
-                        <p className={`font-sans text-xs ${textSec} border ${borderC} p-2.5 rounded-lg italic max-w-xl ${isGym ? "bg-blue-950/40" : "bg-[#0a0807]"}`}>
+                        <p className={`font-sans text-xs ${textSec} border ${borderC} p-2.5 rounded-lg italic max-w-xl break-all whitespace-pre-wrap ${isGym ? "bg-blue-950/40" : "bg-[#0a0807]"}`}>
                           &quot;{rev.comment}&quot;
                         </p>
                       )}

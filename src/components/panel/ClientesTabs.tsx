@@ -266,11 +266,11 @@ function CustomerDetailModal({
                     </div>
 
                     {v.comment && (
-                      <div className={`mt-2 ${modalBg} border ${borderC} p-3 rounded-xl`}>
+                      <div className={`mt-2 ${modalBg} border ${borderC} p-3 rounded-xl overflow-hidden`}>
                         <p className={`font-mono text-[10px] ${textMut} uppercase tracking-wider mb-1`}>
                           💬 Comentario del cliente:
                         </p>
-                        <p className={`font-sans text-xs ${textSec} italic`}>
+                        <p className={`font-sans text-xs ${textSec} italic break-all whitespace-pre-wrap`}>
                           &quot;{v.comment}&quot;
                         </p>
                       </div>

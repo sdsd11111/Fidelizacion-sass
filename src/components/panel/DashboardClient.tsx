@@ -536,7 +536,6 @@ export default function DashboardClient({
                 <tr className={`border-b ${vertical === "GIMNASIO" ? "border-[#1a2540]/60" : "border-[#3a2f25]/60"} text-[#5c554c] uppercase`}>
                   <th className="py-3 px-3">Cliente</th>
                   <th className="py-3 px-3">WhatsApp</th>
-                  <th className="py-3 px-3">{vertical === "GIMNASIO" ? "Asistencias" : "Cortes"}</th>
                   <th className="py-3 px-3">Estado</th>
                   <th className="py-3 px-3">Calificación</th>
                   <th className="py-3 px-3 text-right">Hora</th>
@@ -552,7 +551,6 @@ export default function DashboardClient({
                       {visit.customerName}
                     </td>
                     <td className="py-3 px-3">+{visit.customerWhatsapp}</td>
-                    <td className="py-3 px-3">{visit.cutsCount}</td>
                     <td className="py-3 px-3">
                       <span
                         className={[

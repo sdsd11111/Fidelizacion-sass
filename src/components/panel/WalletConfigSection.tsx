@@ -128,9 +128,6 @@ export default function WalletConfigSection({
             <h3 className={`font-display text-xl font-light ${textPri}`}>
               Compras de Tienda
             </h3>
-            <p className={`font-mono text-xs ${textMut}`}>
-              Pon este QR en tu tienda/recepción. El cliente escanea al comprar suplementos/accesorios.
-            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -161,9 +158,6 @@ export default function WalletConfigSection({
             <h3 className={`font-display text-xl font-light ${textPri}`}>
               Mensualidad & Referidos
             </h3>
-            <p className={`font-mono text-xs ${textMut}`}>
-              El miembro referidor escanea este QR al traer a un nuevo socio para acumular su saldo.
-            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -194,9 +188,6 @@ export default function WalletConfigSection({
             <h3 className={`font-display text-xl font-light ${textPri}`}>
               Calificar Atención / Gym
             </h3>
-            <p className={`font-mono text-xs ${textMut}`}>
-              Pon este QR en la entrada o zona de máquinas para recibir opiniones y valoraciones inmediatas.
-            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -309,8 +300,8 @@ export default function WalletConfigSection({
             No has configurado planes aún. Agrega el primero arriba para calcular automáticamente la comisión de los referidores.
           </p>
         ) : (
-          <div className={`border ${borderC} ${isGym ? "rounded-xl overflow-hidden" : ""}`}>
-            <table className="w-full text-left border-collapse">
+          <div className={`border ${borderC} overflow-x-auto ${isGym ? "rounded-xl" : ""}`}>
+            <table className="w-full text-left border-collapse min-w-[500px]">
               <thead>
                 <tr className={`border-b ${borderC} font-mono text-[10px] uppercase ${textMut} ${isGym ? "bg-white/5" : "bg-[#0a0807]"}`}>
                   <th className="p-3">Nombre Plan</th>

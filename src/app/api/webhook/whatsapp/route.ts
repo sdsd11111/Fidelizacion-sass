@@ -505,11 +505,14 @@ async function processMessage(payload: WebhookPayload) {
       data: { sessionState: "IDLE" },
     });
 
+    const isGym = barbershop.vertical === "GIMNASIO";
+    const thanksEmoji = isGym ? "💪" : "✂️";
+
     await sendWhatsAppMessage({
       instance: barbershop.evolutionInstance,
       apiKey: barbershop.evolutionApiKey,
       to: whatsapp,
-      message: "¡Muchas gracias por tus comentarios! 📝 Los tomaremos muy en cuenta para darte siempre la mejor experiencia. ¡Nos vemos pronto! ✂️",
+      message: `¡Muchas gracias por tus comentarios! 📝 Los tomaremos muy en cuenta para darte siempre la mejor experiencia. ¡Nos vemos pronto! ${thanksEmoji}`,
     });
     return;
   }
@@ -555,6 +558,9 @@ async function processMessage(payload: WebhookPayload) {
       });
     }
 
+    const isGym = barbershop.vertical === "GIMNASIO";
+    const thanksEmoji = isGym ? "💪" : "✂️";
+
     if (rating === 5) {
       // 5 Estrellas: Enviar de inmediato la invitación a dejar reseña en Google
       await prisma.barberCustomer.update({
@@ -569,7 +575,7 @@ async function processMessage(payload: WebhookPayload) {
         instance: barbershop.evolutionInstance,
         apiKey: barbershop.evolutionApiKey,
         to: whatsapp,
-        message: `¡Nos alegra muchísimo que tu experiencia haya sido de 5 estrellas! ⭐⭐⭐⭐⭐\n\n¿Nos ayudarías un mundo dejando tu opinión pública en Google? Solo toma 10 segundos:\n👉 ${reviewUrl}\n\n¡Gracias por preferirnos! ✂️`,
+        message: `¡Nos alegra muchísimo que tu experiencia haya sido de 5 estrellas! ⭐⭐⭐⭐⭐\n\n¿Nos ayudarías un mundo dejando tu opinión pública en Google? Solo toma 10 segundos:\n👉 ${reviewUrl}\n\n¡Gracias por preferirnos! ${thanksEmoji}`,
       });
     } else {
       // 1 a 4 Estrellas: Pedir opinión por escrito para mejorar internamente

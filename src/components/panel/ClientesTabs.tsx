@@ -91,11 +91,22 @@ function CustomerDetailModal({
   customer,
   requiredCuts,
   onClose,
+  vertical = "BARBERIA",
 }: {
   customer: EnrichedCustomer;
   requiredCuts: number;
   onClose: () => void;
+  vertical?: string;
 }) {
+  const isGym = vertical === "GIMNASIO";
+  const accent = isGym ? "#3b82f6" : "#d97644";
+  const modalBg = isGym ? "bg-[#0a1628] border-white/20" : "bg-[#131110] border-[#2a2520]";
+  const headerBg = isGym ? "bg-[#0f2040]" : "bg-[#0a0807]";
+  const textPri = isGym ? "text-white" : "text-[#f3ece1]";
+  const textMut = isGym ? "text-slate-400" : "text-[#5c554c]";
+  const textSec = isGym ? "text-slate-300" : "text-[#a89e90]";
+  const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -104,29 +115,26 @@ function CustomerDetailModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  const cleanWhatsapp = customer.whatsapp.replace(/\D/g, "");
-  const waUrl = `https://wa.me/${cleanWhatsapp}`;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div
-        className="bg-[#131110] border border-[#2a2520] w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden rounded-sm relative"
+        className={`${modalBg} border w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden rounded-2xl relative`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header del Modal */}
-        <div className="p-6 border-b border-[#2a2520] flex items-start justify-between bg-[#0a0807]">
+        <div className={`p-6 border-b ${borderC} flex items-start justify-between ${headerBg}`}>
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-display text-2xl font-light text-[#f3ece1]">
+              <h3 className={`font-display text-2xl font-light ${textPri}`}>
                 {customer.name || "Perfil Sin Nombre"}
               </h3>
               {customer.isNewThisMonth && (
-                <span className="px-2 py-0.5 bg-green-950/40 border border-green-800 text-green-400 font-mono text-[9px] uppercase tracking-wider">
+                <span className="px-2 py-0.5 bg-green-950/40 border border-green-800 text-green-400 font-mono text-[9px] uppercase tracking-wider rounded">
                   Nuevo
                 </span>
               )}
               {customer.isRecurrent && (
-                <span className="px-2 py-0.5 bg-[#d97644]/10 border border-[#d97644]/40 text-[#d97644] font-mono text-[9px] uppercase tracking-wider">
+                <span className="px-2 py-0.5 bg-blue-950/40 border border-blue-800 text-blue-400 font-mono text-[9px] uppercase tracking-wider rounded">
                   Recurrente
                 </span>
               )}
@@ -137,17 +145,18 @@ function CustomerDetailModal({
                   href={`https://wa.me/${customer.whatsapp.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 font-mono text-xs text-[#d97644] hover:underline"
+                  className="inline-flex items-center gap-1.5 font-mono text-xs hover:underline"
+                  style={{ color: accent }}
                 >
                   <span>📱 +{customer.whatsapp}</span>
                   <span className="text-[10px] opacity-70">↗ WhatsApp</span>
                 </a>
               ) : (
-                <span className="font-mono text-xs text-[#5c554c]">
+                <span className={`font-mono text-xs ${textMut}`}>
                   🛒 Consumidor Final (Sin WhatsApp)
                 </span>
               )}
-              <span className="font-mono text-[10px] text-[#5c554c] mt-1">
+              <span className={`font-mono text-[10px] ${textMut} mt-1`}>
                 Cuenta: {customer.customerName || "Sin Nombre"}
               </span>
             </div>
@@ -155,7 +164,7 @@ function CustomerDetailModal({
 
           <button
             onClick={onClose}
-            className="text-[#5c554c] hover:text-[#f3ece1] p-1 font-mono text-lg transition-colors"
+            className={`${textMut} hover:${textPri} p-1 font-mono text-lg transition-colors`}
             title="Cerrar (Esc)"
           >
             ✕
@@ -163,47 +172,47 @@ function CustomerDetailModal({
         </div>
 
         {/* Resumen rápido de estadísticas */}
-        <div className="grid grid-cols-3 gap-px bg-[#2a2520] border-b border-[#2a2520] text-center">
-          <div className="bg-[#0a0807] p-3">
-            <p className="font-display text-2xl font-light text-[#f3ece1]">
+        <div className={`grid grid-cols-3 gap-px ${borderC} border-b text-center`}>
+          <div className={`${headerBg} p-3`}>
+            <p className={`font-display text-2xl font-light ${textPri}`}>
               {customer.cutsCount}
             </p>
-            <p className="font-mono text-[9px] uppercase text-[#5c554c] tracking-wider">
-              Cortes Totales
+            <p className={`font-mono text-[9px] uppercase ${textMut} tracking-wider`}>
+              {isGym ? "Asistencias Totales" : "Cortes Totales"}
             </p>
           </div>
-          <div className="bg-[#0a0807] p-3">
+          <div className={`${headerBg} p-3`}>
             <div className="flex items-center justify-center pt-0.5">
               <StarRating rating={customer.avgRating} />
             </div>
-            <p className="font-mono text-[9px] uppercase text-[#5c554c] tracking-wider mt-1">
+            <p className={`font-mono text-[9px] uppercase ${textMut} tracking-wider mt-1`}>
               Promedio Stars
             </p>
           </div>
-          <div className="bg-[#0a0807] p-3">
-            <p className="font-display text-2xl font-light text-[#f3ece1]">
+          <div className={`${headerBg} p-3`}>
+            <p className={`font-display text-2xl font-light ${textPri}`}>
               {customer.totalVisits}
             </p>
-            <p className="font-mono text-[9px] uppercase text-[#5c554c] tracking-wider">
+            <p className={`font-mono text-[9px] uppercase ${textMut} tracking-wider`}>
               Visitas Aprobadas
             </p>
           </div>
         </div>
 
         {/* Barra de Fidelidad */}
-        <div className="p-4 bg-[#0a0807]/50 border-b border-[#2a2520]">
-          <LoyaltyBar cutsCount={customer.cutsCount} requiredCuts={requiredCuts} isGym={false} />
+        <div className={`p-4 ${headerBg}/50 border-b ${borderC}`}>
+          <LoyaltyBar cutsCount={customer.cutsCount} requiredCuts={requiredCuts} isGym={isGym} />
         </div>
 
         {/* Contenido: Historial Cronológico de Visitas */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#5c554c]">
+          <p className={`font-mono text-[10px] tracking-[0.25em] uppercase ${textMut}`}>
             Historial de Visitas ({customer.history.length})
           </p>
 
           {customer.history.length === 0 ? (
-            <div className="text-center py-8 border border-[#2a2520] bg-[#0a0807]">
-              <p className="font-mono text-xs text-[#5c554c] italic">
+            <div className={`text-center py-8 border ${borderC} ${headerBg}`}>
+              <p className={`font-mono text-xs ${textMut} italic`}>
                 No hay visitas registradas para este cliente aún.
               </p>
             </div>
@@ -222,12 +231,12 @@ function CustomerDetailModal({
                 return (
                   <div
                     key={v.id}
-                    className="bg-[#0a0807] border border-[#2a2520] p-4 space-y-2 hover:border-[#3a3530] transition-colors"
+                    className={`${headerBg} border ${borderC} p-4 space-y-2 hover:border-blue-500/50 transition-colors rounded-xl`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 font-mono text-xs">
-                        <span className="text-[#d97644] font-bold">#{customer.history.length - index}</span>
-                        <span className="text-[#a89e90]">{dateFormatted}</span>
+                        <span style={{ color: accent }} className="font-bold">#{customer.history.length - index}</span>
+                        <span className={textSec}>{dateFormatted}</span>
                       </div>
                       <span
                         className={`px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider rounded-full ${
@@ -242,29 +251,26 @@ function CustomerDetailModal({
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-[#1c1917]">
-                      {/* Barbero */}
+                    <div className={`flex flex-wrap items-center justify-between gap-2 pt-1 border-t ${borderC}`}>
                       <div className="flex items-center gap-1.5 font-mono text-xs">
-                        <span className="text-[#5c554c]">✂️ Atendido por:</span>
-                        <span className="text-[#f3ece1] font-medium">
+                        <span className={textMut}>{isGym ? "🏋️ Atendido por:" : "✂️ Atendido por:"}</span>
+                        <span className={`${textPri} font-medium`}>
                           {v.staffName || "Sin asignar"}
                         </span>
                       </div>
 
-                      {/* Calificación */}
                       <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-[10px] text-[#5c554c]">Calificación:</span>
+                        <span className={`font-mono text-[10px] ${textMut}`}>Calificación:</span>
                         <StarRating rating={v.rating} />
                       </div>
                     </div>
 
-                    {/* Comentario si dejó feedback */}
                     {v.comment && (
-                      <div className="mt-2 bg-[#131110] border border-[#2a2520] p-3 rounded-sm">
-                        <p className="font-mono text-[10px] text-[#5c554c] uppercase tracking-wider mb-1">
+                      <div className={`mt-2 ${modalBg} border ${borderC} p-3 rounded-xl`}>
+                        <p className={`font-mono text-[10px] ${textMut} uppercase tracking-wider mb-1`}>
                           💬 Comentario del cliente:
                         </p>
-                        <p className="font-sans text-xs text-[#a89e90] italic">
+                        <p className={`font-sans text-xs ${textSec} italic`}>
                           &quot;{v.comment}&quot;
                         </p>
                       </div>
@@ -277,10 +283,11 @@ function CustomerDetailModal({
         </div>
 
         {/* Footer del Modal */}
-        <div className="p-4 border-t border-[#2a2520] bg-[#0a0807] flex justify-end">
+        <div className={`p-4 border-t ${borderC} ${headerBg} flex justify-end`}>
           <button
             onClick={onClose}
-            className="px-5 py-2 font-mono text-xs tracking-widest uppercase bg-[#2a2520] text-[#f3ece1] hover:bg-[#3a3530] transition-colors rounded-sm"
+            className={`px-5 py-2 font-mono text-xs tracking-widest uppercase text-white hover:opacity-90 transition-opacity ${isGym ? "rounded-xl" : "rounded-sm"}`}
+            style={{ backgroundColor: accent }}
           >
             Cerrar
           </button>
@@ -303,6 +310,15 @@ function CustomerCard({
 }) {
   const isGym = vertical === "GIMNASIO";
   const accent = isGym ? "#3b82f6" : "#d97644";
+  const cardBg = isGym
+    ? "bg-[#0f2040]/80 backdrop-blur-xl border-white/15 hover:border-blue-500/50 rounded-2xl"
+    : "bg-[#131110] border-[#2a2520] hover:bg-[#181513]";
+  const boxBg = isGym ? "bg-[#0a1628]" : "bg-[#0a0807]";
+  const textPri = isGym ? "text-white" : "text-[#f3ece1]";
+  const textMut = isGym ? "text-slate-400" : "text-[#5c554c]";
+  const textSec = isGym ? "text-slate-300" : "text-[#a89e90]";
+  const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
+
   const lastVisitStr = customer.lastVisitAt
     ? new Date(customer.lastVisitAt).toLocaleDateString("es-EC", {
         day: "2-digit",
@@ -322,106 +338,99 @@ function CustomerCard({
   return (
     <div
       onClick={onClick}
-      className="bg-[#131110] border border-[#2a2520] p-5 transition-all cursor-pointer group hover:bg-[#181513] relative"
-      style={{ borderColor: undefined }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = accent)}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#2a2520')}
+      className={`${cardBg} border p-5 transition-all cursor-pointer group relative`}
     >
-      {/* Header del cliente */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1 min-w-0">
-          <p className="font-display text-lg font-light text-[#f3ece1] truncate transition-colors" style={{ color: undefined }}>
+          <p className={`font-display text-lg font-light ${textPri} truncate transition-colors`}>
             {customer.name || "Perfil Sin Nombre"}
           </p>
           <div className="flex flex-col mt-0.5">
-            <p className="font-mono text-xs text-[#5c554c]">
+            <p className={`font-mono text-xs ${textMut}`}>
               {customer.whatsapp === "CF" || customer.whatsapp === "N/A"
                 ? "Consumidor Final (Sin WhatsApp)"
                 : `+${customer.whatsapp}`}
             </p>
-            <p className="font-mono text-[9px] text-[#5c554c]/70 truncate uppercase">
+            <p className={`font-mono text-[9px] ${textMut}/70 truncate uppercase`}>
               {customer.customerName || "Cuenta sin nombre"}
             </p>
           </div>
         </div>
         <div className="flex flex-col items-end gap-1 ml-3 shrink-0">
           {customer.cutsCount >= 8 && (
-            <span className="px-2 py-0.5 bg-amber-950/40 border border-amber-800 text-amber-400 font-mono text-[9px] uppercase tracking-wider font-bold">
+            <span className="px-2 py-0.5 bg-amber-950/40 border border-amber-800 text-amber-400 font-mono text-[9px] uppercase tracking-wider font-bold rounded">
               ⭐⭐⭐⭐⭐ VIP
             </span>
           )}
           {customer.isNewThisMonth && (
-            <span className="px-2 py-0.5 bg-green-950/40 border border-green-800 text-green-400 font-mono text-[9px] uppercase tracking-wider">
+            <span className="px-2 py-0.5 bg-green-950/40 border border-green-800 text-green-400 font-mono text-[9px] uppercase tracking-wider rounded">
               Nuevo
             </span>
           )}
           {customer.isRecurrent && (
-            <span className="px-2 py-0.5 bg-[#d97644]/10 border border-[#d97644]/40 text-[#d97644] font-mono text-[9px] uppercase tracking-wider">
+            <span className="px-2 py-0.5 bg-blue-950/40 border border-blue-800 text-blue-400 font-mono text-[9px] uppercase tracking-wider rounded">
               Recurrente
             </span>
           )}
 
-          {/* Semáforo de Actividad */}
           {daysSinceVisit !== null ? (
             daysSinceVisit < 30 ? (
-              <span className="px-2 py-0.5 bg-emerald-950/40 border border-emerald-800 text-emerald-400 font-mono text-[9px] uppercase tracking-wider flex items-center gap-1">
+              <span className="px-2 py-0.5 bg-emerald-950/40 border border-emerald-800 text-emerald-400 font-mono text-[9px] uppercase tracking-wider flex items-center gap-1 rounded">
                 <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                 🟢 Activo
               </span>
             ) : daysSinceVisit <= 60 ? (
-              <span className="px-2 py-0.5 bg-amber-950/40 border border-amber-800 text-amber-400 font-mono text-[9px] uppercase tracking-wider flex items-center gap-1">
+              <span className="px-2 py-0.5 bg-amber-950/40 border border-amber-800 text-amber-400 font-mono text-[9px] uppercase tracking-wider flex items-center gap-1 rounded">
                 <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
                 🟡 Hace {daysSinceVisit}d
               </span>
             ) : (
-              <span className="px-2 py-0.5 bg-red-950/40 border border-red-800 text-red-400 font-mono text-[9px] uppercase tracking-wider flex items-center gap-1">
+              <span className="px-2 py-0.5 bg-red-950/40 border border-red-800 text-red-400 font-mono text-[9px] uppercase tracking-wider flex items-center gap-1 rounded">
                 <span className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse" />
                 🔴 +60d sin venir
               </span>
             )
           ) : (
-            <span className="px-2 py-0.5 bg-[#1c1917] border border-[#2a2520] text-[#5c554c] font-mono text-[9px] uppercase tracking-wider">
+            <span className={`px-2 py-0.5 ${boxBg} border ${borderC} ${textMut} font-mono text-[9px] uppercase tracking-wider rounded`}>
               Sin Visita
             </span>
           )}
         </div>
       </div>
 
-      {/* Estadísticas */}
       <div className="grid grid-cols-3 gap-3 mb-4 text-center">
-        <div className="bg-[#0a0807] p-2.5">
-          <p className="font-display text-2xl font-light text-[#f3ece1]">
+        <div className={`${boxBg} p-2.5 ${isGym ? "rounded-xl" : ""}`}>
+          <p className={`font-display text-2xl font-light ${textPri}`}>
             {customer.cutsCount}
           </p>
-          <p className="font-mono text-[9px] uppercase text-[#5c554c] tracking-wider">
+          <p className={`font-mono text-[9px] uppercase ${textMut} tracking-wider`}>
             {isGym ? "Asistencias" : "Cortes"}
           </p>
         </div>
-        <div className="bg-[#0a0807] p-2.5">
+        <div className={`${boxBg} p-2.5 ${isGym ? "rounded-xl" : ""}`}>
           <div className="flex items-center justify-center pt-1">
             <StarRating rating={customer.avgRating} />
           </div>
-          <p className="font-mono text-[9px] uppercase text-[#5c554c] tracking-wider mt-1">
+          <p className={`font-mono text-[9px] uppercase ${textMut} tracking-wider mt-1`}>
             Rating
           </p>
         </div>
-        <div className="bg-[#0a0807] p-2.5">
-          <p className="font-display text-2xl font-light text-[#f3ece1]">
+        <div className={`${boxBg} p-2.5 ${isGym ? "rounded-xl" : ""}`}>
+          <p className={`font-display text-2xl font-light ${textPri}`}>
             {customer.totalVisits}
           </p>
-          <p className="font-mono text-[9px] uppercase text-[#5c554c] tracking-wider">
+          <p className={`font-mono text-[9px] uppercase ${textMut} tracking-wider`}>
             Visitas
           </p>
         </div>
       </div>
 
-      {/* Último corte */}
       <div className="flex justify-between items-center mb-3 font-mono text-[10px]">
-        <span className="text-[#5c554c]">{isGym ? "Última asistencia:" : "Último corte:"}</span>
-        <span className="text-[#a89e90]">
+        <span className={textMut}>{isGym ? "Última asistencia:" : "Último corte:"}</span>
+        <span className={textSec}>
           {lastVisitStr}
           {daysSinceVisit !== null && (
-            <span className="ml-1 text-[#5c554c]">
+            <span className={`ml-1 ${textMut}`}>
               ({daysSinceVisit === 0
                 ? "hoy"
                 : daysSinceVisit === 1
@@ -432,13 +441,11 @@ function CustomerCard({
         </span>
       </div>
 
-      {/* Barra de fidelidad */}
       <LoyaltyBar cutsCount={customer.cutsCount} requiredCuts={requiredCuts} isGym={isGym} />
 
-      {/* Indicador de ver historial */}
-      <div className="mt-3 pt-2 border-t border-[#2a2520]/50 flex justify-between items-center font-mono text-[9px] text-[#5c554c] transition-colors">
+      <div className={`mt-3 pt-2 border-t ${borderC} flex justify-between items-center font-mono text-[9px] ${textMut} transition-colors`}>
         <span>Ver historial completo</span>
-        <span>🔍 Ver detalle →</span>
+        <span style={{ color: accent }}>🔍 Ver detalle →</span>
       </div>
     </div>
   );
@@ -576,6 +583,7 @@ export default function ClientesTabs({
           customer={selectedCustomer}
           requiredCuts={requiredCuts}
           onClose={() => setSelectedCustomer(null)}
+          vertical={vertical}
         />
       )}
     </div>

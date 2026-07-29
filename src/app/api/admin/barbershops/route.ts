@@ -109,10 +109,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Configurar webhook automático apuntando a producción
-    const protocol = request.headers.get("x-forwarded-proto") || "https";
-    const host = request.headers.get("host") || "barberos-rho-henna.vercel.app";
-    const webhookUrl = `${protocol}://${host}/api/webhook/whatsapp`;
+    // Configurar webhook automático apuntando al dominio actual / NEXT_PUBLIC_BASE_URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    let webhookUrl = `${baseUrl}/api/webhook/whatsapp`;
+    if (!baseUrl) {
+      const protocol = request.headers.get("x-forwarded-proto") || "https";
+      const host = request.headers.get("host") || "fidelizacion-sass.vercel.app";
+      webhookUrl = `${protocol}://${host}/api/webhook/whatsapp`;
+    }
     await configureEvolutionWebhook(evolutionInstanceName, webhookUrl);
 
     const trialEndsAt = new Date();

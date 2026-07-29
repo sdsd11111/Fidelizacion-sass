@@ -18,6 +18,7 @@ interface ProgressRingProps {
   suffix?: string;
   /** Subtítulo debajo. */
   caption?: string;
+  vertical?: string;
 }
 
 export default function ProgressRing({
@@ -25,12 +26,18 @@ export default function ProgressRing({
   max = 100,
   size = 170,
   stroke = 11,
-  color = "#d97644",
-  trackColor = "#2a221c",
+  color,
+  trackColor,
   label,
   suffix,
   caption,
+  vertical = "BARBERIA",
 }: ProgressRingProps) {
+  const isGym = vertical === "GIMNASIO";
+  const ringStartColor = color || (isGym ? "#60a5fa" : "#d97644");
+  const ringEndColor = isGym ? "#3b82f6" : "#e8a33d";
+  const actualTrackColor = trackColor || (isGym ? "#1e293b" : "#2a221c");
+
   const pct = Math.max(0, Math.min(1, value / max));
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -47,16 +54,16 @@ export default function ProgressRing({
     >
       <svg width={size} height={size} className="-rotate-90">
         <defs>
-          <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={color} stopOpacity="1" />
-            <stop offset="100%" stopColor="#e8a33d" stopOpacity="0.95" />
+          <linearGradient id={`ringGrad-${vertical}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={ringStartColor} stopOpacity="1" />
+            <stop offset="100%" stopColor={ringEndColor} stopOpacity="0.95" />
           </linearGradient>
         </defs>
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={trackColor}
+          stroke={actualTrackColor}
           strokeWidth={stroke}
           fill="none"
         />
@@ -64,7 +71,7 @@ export default function ProgressRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="url(#ringGrad)"
+          stroke={`url(#ringGrad-${vertical})`}
           strokeWidth={stroke}
           strokeLinecap="round"
           fill="none"

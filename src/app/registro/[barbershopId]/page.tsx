@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import RegistrationForm from "@/components/public/RegistrationForm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getTheme } from "@/lib/vertical-theme";
 
 export default async function QRRegistrationPage({
   params,
@@ -12,22 +13,38 @@ export default async function QRRegistrationPage({
 
   const barbershop = await prisma.barbershop.findUnique({
     where: { id: barbershopId },
-    select: { name: true },
+    select: { name: true, vertical: true },
   });
 
   if (!barbershop) {
     notFound();
   }
 
+  const theme = getTheme(barbershop.vertical);
+  const { colors, texts } = theme;
+
   return (
-    <div className="min-h-screen bg-[#0a0807] text-[#f3ece1] flex flex-col selection:bg-[#d97644] selection:text-[#0a0807]">
+    <div 
+      className="min-h-screen flex flex-col"
+      style={{
+        backgroundColor: colors.bgPrimary,
+        color: colors.textPrimary,
+      }}
+    >
       {/* Header */}
-      <header className="py-6 px-6 border-b border-[#2a2520] flex items-center justify-center bg-[#0a0807]/95 backdrop-blur-sm sticky top-0 z-10">
+      <header 
+        className="py-6 px-6 border-b flex items-center justify-center backdrop-blur-sm sticky top-0 z-10"
+        style={{
+          backgroundColor: `${colors.bgPrimary}f2`,
+          borderColor: colors.border,
+        }}
+      >
         <Link
           href="/"
-          className="font-display text-xl font-light tracking-widest text-[#f3ece1]"
+          className="font-display text-xl font-light tracking-widest"
+          style={{ color: colors.textPrimary }}
         >
-          BarberOS
+          {texts.brand}
         </Link>
       </header>
 
@@ -35,15 +52,21 @@ export default async function QRRegistrationPage({
       <main className="flex-1 flex flex-col items-center justify-center p-4 py-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-10">
-            <h1 className="font-display text-4xl font-light tracking-wide mb-2 text-[#f3ece1]">
-              Regístrate en <span className="text-[#d97644] font-medium">{barbershop.name}</span>
+            <h1 className="font-display text-4xl font-light tracking-wide mb-2" style={{ color: colors.textPrimary }}>
+              Regístrate en <span className="font-medium" style={{ color: colors.accent }}>{barbershop.name}</span>
             </h1>
-            <p className="text-[#a89e90] font-sans font-light">
-              Completa tus datos para empezar a acumular cortes gratis y acceder a tus beneficios.
+            <p className="font-sans font-light" style={{ color: colors.textMuted }}>
+              {texts.registrationSubtitle}
             </p>
           </div>
 
-          <div className="bg-[#131110] border border-[#2a2520] p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+          <div 
+            className="p-6 sm:p-8 shadow-2xl relative overflow-hidden"
+            style={{
+              backgroundColor: colors.bgCard,
+              border: `1px solid ${colors.border}`,
+            }}
+          >
             <RegistrationForm
               barbershopId={barbershopId}
               barbershopName={barbershop.name}

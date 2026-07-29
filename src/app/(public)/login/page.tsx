@@ -2,12 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getTheme, type Vertical } from "@/lib/vertical-theme";
 
 export default function LoginPage() {
   const [pin, setPin] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error" | "checking">("checking");
   const [message, setMessage] = useState("");
+  const [vertical, setVertical] = useState<Vertical>("BARBERIA");
   const router = useRouter();
+
+  const theme = getTheme(vertical);
+  const { colors, texts } = theme;
 
   // Verificar si ya hay sesión activa al cargar la página
   useEffect(() => {
@@ -48,6 +53,10 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
+        // Detectar la vertical del negocio para mostrar branding correcto
+        if (data.vertical) {
+          setVertical(data.vertical as Vertical);
+        }
         setStatus("success");
         setMessage("¡Acceso correcto! Redirigiendo...");
         // Redirigir al panel de control
@@ -67,10 +76,19 @@ export default function LoginPage() {
   // Mostrar pantalla de carga mientras se verifica la sesión
   if (status === "checking") {
     return (
-      <main className="min-h-screen bg-[#0a0807] text-[#f3ece1] flex items-center justify-center p-6">
+      <main
+        className="min-h-screen flex items-center justify-center p-6"
+        style={{ backgroundColor: colors.bgPrimary, color: colors.textPrimary }}
+      >
         <div className="text-center space-y-4">
-          <span className="inline-block w-8 h-8 border-2 border-[#d97644] border-t-transparent rounded-full animate-spin" />
-          <p className="font-mono text-xs tracking-[0.2em] uppercase text-[#5c554c]">
+          <span
+            className="inline-block w-8 h-8 border-2 border-t-transparent rounded-full animate-spin"
+            style={{ borderColor: colors.accent, borderTopColor: "transparent" }}
+          />
+          <p
+            className="font-mono text-xs tracking-[0.2em] uppercase"
+            style={{ color: colors.textSecondary }}
+          >
             Verificando sesión...
           </p>
         </div>
@@ -79,38 +97,68 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0807] text-[#f3ece1] flex items-center justify-center p-6">
-      <div className="w-full max-w-md p-10 bg-[#131110] border border-[#2a2520] relative font-mono">
+    <main
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{ backgroundColor: colors.bgPrimary, color: colors.textPrimary }}
+    >
+      <div
+        className="w-full max-w-md p-10 relative font-mono"
+        style={{
+          backgroundColor: colors.bgCard,
+          border: `1px solid ${colors.border}`,
+        }}
+      >
         {/* Decoración superior */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-[#d97644]" />
+        <div
+          className="absolute top-0 left-0 right-0 h-1"
+          style={{ backgroundColor: colors.accent }}
+        />
 
-        <h2 className="font-display text-4xl font-light mb-4 text-[#f3ece1] text-center">
-          BarberOS
+        <h2
+          className="font-display text-4xl font-light mb-4 text-center"
+          style={{ color: colors.textPrimary }}
+        >
+          {texts.loginTitle}
         </h2>
-        <p className="font-mono text-xs tracking-wider text-[#5c554c] text-center mb-8 uppercase">
-          Acceso rápido por PIN
+        <p
+          className="font-mono text-xs tracking-wider text-center mb-8 uppercase"
+          style={{ color: colors.textSecondary }}
+        >
+          {texts.loginSubtitle}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block font-mono text-xs tracking-[0.2em] uppercase text-[#5c554c] mb-2">
-              Código PIN de Barbería
+            <label
+              className="block font-mono text-xs tracking-[0.2em] uppercase mb-2"
+              style={{ color: colors.textSecondary }}
+            >
+              {texts.loginPinLabel}
             </label>
             <input
               type="text"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
               placeholder="Ej. 123456"
+              autoComplete="one-time-code"
               disabled={status === "loading"}
-              className="w-full px-4 py-3 font-mono text-lg text-center tracking-[0.35em] bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] placeholder-[#5c554c] focus:outline-none focus:border-[#d97644]"
+              className="w-full px-4 py-3 font-mono text-lg text-center tracking-[0.35em] focus:outline-none"
+              style={{
+                backgroundColor: colors.bgPrimary,
+                border: `1px solid ${colors.border}`,
+                color: colors.textPrimary,
+              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = colors.accent; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = colors.border; }}
             />
           </div>
 
           {message && (
             <p
               className={`font-display italic text-sm text-center ${
-                status === "success" ? "text-green-400" : "text-[#d97644]"
+                status === "success" ? "text-green-400" : ""
               }`}
+              style={status !== "success" ? { color: colors.accent } : undefined}
             >
               {message}
             </p>
@@ -119,9 +167,15 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={status === "loading"}
-            className="w-full py-4 font-mono text-xs tracking-[0.2em] uppercase text-[#0a0807] bg-[#d97644] hover:bg-[#e8854f] transition-all disabled:opacity-50 font-bold"
+            className="w-full py-4 font-mono text-xs tracking-[0.2em] uppercase transition-all disabled:opacity-50 font-bold"
+            style={{
+              backgroundColor: colors.accent,
+              color: colors.bgPrimary,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.accentHover; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = colors.accent; }}
           >
-            {status === "loading" ? "VERIFICANDO..." : "INGRESAR AL PANEL"}
+            {status === "loading" ? "VERIFICANDO..." : texts.loginButton}
           </button>
         </form>
       </div>

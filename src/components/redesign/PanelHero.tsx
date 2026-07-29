@@ -20,6 +20,10 @@ interface PanelHeroProps {
   overlay?: ReactNode;
   /** Posición de la imagen. Default "center". */
   imagePosition?: string;
+  /** Color de acento de marca para la viñeta y resplandor. */
+  accentColor?: string;
+  /** Vertical del negocio para adaptar fondos. */
+  vertical?: string;
 }
 
 /**
@@ -36,11 +40,18 @@ export default function PanelHero({
   minHeight = 320,
   overlay,
   imagePosition = "center",
+  accentColor = "rgba(217,118,68,0.45)",
+  vertical = "BARBERIA",
 }: PanelHeroProps) {
+  const isGym = vertical === "GIMNASIO";
+  // Base background RGB for gradients — must match GIMNASIO_COLORS.bgPrimary
+  const bgR = isGym ? "17,24,39" : "10,8,7";   // #111827 vs #0a0807
+  const bgHex = isGym ? "#111827" : "#0a0807";
+  const borderColor = isGym ? "rgba(45,74,122,0.6)" : "rgba(42,37,32,0.6)";
   return (
     <section
-      className="relative w-full rounded-3xl border border-[#2a2520]/60"
-      style={{ minHeight: `${minHeight}px` }}
+      className="relative w-full rounded-3xl border"
+      style={{ minHeight: `${minHeight}px`, borderColor }}
     >
       {/* CAPA CON OVERFLOW-HIDDEN: solo para la imagen y degradados.
           Está fuera del flujo para no bloquear el scroll horizontal
@@ -48,8 +59,9 @@ export default function PanelHero({
       <div aria-hidden className="absolute inset-0 overflow-hidden rounded-3xl">
         {/* IMAGEN DE FONDO */}
         <div
-          className="absolute inset-0 bg-[#0a0807]"
+          className="absolute inset-0"
           style={{
+            backgroundColor: bgHex,
             backgroundImage: `url("${imageUrl}")`,
             backgroundSize: "cover",
             backgroundPosition: imagePosition,
@@ -63,7 +75,7 @@ export default function PanelHero({
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(10,8,7,0.45) 0%, rgba(10,8,7,0.15) 30%, rgba(10,8,7,0.55) 55%, rgba(10,8,7,0.95) 88%, #0a0807 100%)",
+              `linear-gradient(180deg, rgba(${bgR},0.45) 0%, rgba(${bgR},0.15) 30%, rgba(${bgR},0.55) 55%, rgba(${bgR},0.95) 88%, ${bgHex} 100%)`,
           }}
         />
         {/* DEGRADADO LATERAL — refuerza el lado izquierdo en desktop
@@ -72,16 +84,16 @@ export default function PanelHero({
           className="absolute inset-0 hidden md:block"
           style={{
             background:
-              "linear-gradient(90deg, rgba(10,8,7,0.92) 0%, rgba(10,8,7,0.65) 35%, rgba(10,8,7,0.25) 65%, rgba(10,8,7,0.05) 100%)",
+              `linear-gradient(90deg, rgba(${bgR},0.92) 0%, rgba(${bgR},0.65) 35%, rgba(${bgR},0.25) 65%, rgba(${bgR},0.05) 100%)`,
           }}
         />
 
-        {/* VIÑETA NARANJA SUTIL — acento de marca */}
+        {/* VIÑETA ACENTO — acento de marca */}
         <div
           className="absolute inset-0 mix-blend-overlay opacity-30"
           style={{
             background:
-              "radial-gradient(circle at 85% 15%, rgba(217,118,68,0.45) 0%, rgba(217,118,68,0) 50%)",
+              `radial-gradient(circle at 85% 15%, ${accentColor} 0%, transparent 50%)`,
           }}
         />
       </div>
@@ -95,7 +107,8 @@ export default function PanelHero({
             {/* Glass sutil SOLO detrás del texto (no afecta a la imagen). */}
             <div
               aria-hidden
-              className="absolute -inset-x-3 -inset-y-4 sm:-inset-x-4 sm:-inset-y-5 -z-10 rounded-2xl bg-[#0a0807]/55 backdrop-blur-[2px]"
+              className="absolute -inset-x-3 -inset-y-4 sm:-inset-x-4 sm:-inset-y-5 -z-10 rounded-2xl backdrop-blur-[2px]"
+              style={{ backgroundColor: `${bgHex}8c` }}
             />
 
             {(eyebrow || badge) && (

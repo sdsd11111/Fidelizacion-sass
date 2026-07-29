@@ -29,13 +29,14 @@ export async function POST(request: NextRequest) {
       planStatus: barbershop.planStatus,
       trialEndsAt: barbershop.trialEndsAt?.toISOString() || null,
       role: "OWNER",
+      vertical: barbershop.vertical || "BARBERIA",
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("365d")
       .sign(JWT_SECRET);
 
-    const response = NextResponse.json({ success: true, message: "Autenticación exitosa." });
+    const response = NextResponse.json({ success: true, message: "Autenticación exitosa.", vertical: barbershop.vertical || "BARBERIA" });
 
     // Guardar la sesión en la cookie (permanente por 1 año, configurable para PWA/móviles)
     const oneYearFromNow = new Date();

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { getTheme } from "@/lib/vertical-theme";
 import PanelHero from "@/components/redesign/PanelHero";
 import SectionTabs, { type SectionTab } from "@/components/redesign/SectionTabs";
 import MetricTile from "@/components/redesign/MetricTile";
@@ -16,6 +17,7 @@ import DirectorWidget from "@/components/panel/DirectorWidget";
 export interface DashboardClientProps {
   barbershopId: string;
   barbershopName: string;
+  vertical?: string;
   isPremium: boolean;
   healthScore: number;
   healthStatus: string;
@@ -63,7 +65,7 @@ export interface DashboardClientProps {
 
 type TabId = "reputacion" | "clientes" | "retencion" | "recupera";
 
-const HERO_IMAGES: Record<TabId, { url: string; position: string }> = {
+const HERO_IMAGES_BARBERIA: Record<TabId, { url: string; position: string }> = {
   reputacion: {
     url: "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=1600&q=80",
     position: "center",
@@ -82,9 +84,29 @@ const HERO_IMAGES: Record<TabId, { url: string; position: string }> = {
   },
 };
 
+const HERO_IMAGES_GIMNASIO: Record<TabId, { url: string; position: string }> = {
+  reputacion: {
+    url: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80",
+    position: "center",
+  },
+  clientes: {
+    url: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=1600&q=80",
+    position: "center",
+  },
+  retencion: {
+    url: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&q=80",
+    position: "center 30%",
+  },
+  recupera: {
+    url: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=1600&q=80",
+    position: "center",
+  },
+};
+
 export default function DashboardClient({
   barbershopId,
   barbershopName,
+  vertical = "BARBERIA",
   isPremium,
   healthScore,
   healthStatus,
@@ -104,6 +126,8 @@ export default function DashboardClient({
   motorWidget,
 }: DashboardClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>("reputacion");
+  const theme = getTheme(vertical);
+  const { colors, texts } = theme;
 
   const customersToRecover = [...overdueCustomers, ...preCutCustomers];
 
@@ -114,7 +138,8 @@ export default function DashboardClient({
     { id: "recupera", label: "Recupera", icon: "⚠", badge: customersToRecover.length },
   ];
 
-  const heroImage = HERO_IMAGES[activeTab];
+  const heroImagesMap = vertical === "GIMNASIO" ? HERO_IMAGES_GIMNASIO : HERO_IMAGES_BARBERIA;
+  const heroImage = heroImagesMap[activeTab];
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-32">
@@ -122,11 +147,20 @@ export default function DashboardClient({
       <PanelHero
         imageUrl={heroImage.url}
         imagePosition={heroImage.position}
+        accentColor={colors.accent}
         minHeight={360}
+        vertical={vertical}
         eyebrow="Espejo del Negocio"
         badge={
           isPremium && (
-            <span className="bg-[#d97644]/15 text-[#d97644] border border-[#d97644]/30 px-2 py-0.5 text-[9px] font-mono rounded-full uppercase tracking-[0.2em]">
+            <span 
+              className="px-2 py-0.5 text-[9px] font-mono rounded-full uppercase tracking-[0.2em] border"
+              style={{
+                backgroundColor: `${colors.accent}20`,
+                color: colors.accent,
+                borderColor: `${colors.accent}40`,
+              }}
+            >
               Plan Premium
             </span>
           )
@@ -135,16 +169,14 @@ export default function DashboardClient({
         subtitle={healthMessage}
         action={
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-            {/* BLOQUE DE SALUD — anillo + estado en una glass card más espaciosa.
-                El anillo ahora es 112px (antes 86) para que "/100" quepa
-                sin chocar contra el stroke. */}
-            <div className="flex items-center gap-4 bg-[#1a1614]/65 border border-[#3a2f25]/80 backdrop-blur-md rounded-2xl px-5 py-4">
+            <div className={`flex items-center gap-4 backdrop-blur-md rounded-2xl px-5 py-4 border ${vertical === "GIMNASIO" ? "bg-[#111827]/75 border-[#2d4a7a]" : "bg-[#0a0807]/75 border-[#2a2520]"}`}>
               <ProgressRing
                 value={healthScore}
                 label={String(healthScore)}
                 suffix="/100"
                 size={112}
                 stroke={9}
+                vertical={vertical}
               />
               <div className="min-w-0">
                 <div className="flex items-center gap-2 font-display text-xl text-[#f3ece1]">
@@ -156,7 +188,7 @@ export default function DashboardClient({
                 </p>
               </div>
             </div>
-            <RegisterVisitButton barbershopId={barbershopId} />
+            <RegisterVisitButton barbershopId={barbershopId} vertical={vertical} />
           </div>
         }
         overlay={
@@ -164,12 +196,13 @@ export default function DashboardClient({
           // - En móvil (< md): scroll horizontal con snap, flecha pulsante y
           //   gradiente negro en el borde derecho que se desvanece al scrollear.
           // - En desktop (≥ md): tabs centrados a la izquierda, sin flecha.
-          <TabsCarousel>
+          <TabsCarousel vertical={vertical}>
             <SectionTabs
               tabs={tabs}
               activeTab={activeTab}
               onChange={(id) => setActiveTab(id as TabId)}
               variant="pill"
+              vertical={vertical}
             />
           </TabsCarousel>
         }
@@ -185,6 +218,7 @@ export default function DashboardClient({
               caption={`${totalRatings} reseñas registradas`}
               icon="★"
               accent="amber"
+              vertical={vertical}
               footer={
                 <>
                   <span>↑</span>
@@ -198,6 +232,7 @@ export default function DashboardClient({
               caption="Votos recibidos de clientes"
               icon="✎"
               accent="amber"
+              vertical={vertical}
             />
             <MetricTile
               label="Tendencia"
@@ -205,10 +240,11 @@ export default function DashboardClient({
               caption="Reseñas nuevas este mes"
               icon="↗"
               accent={ratingsThisMonth > 0 ? "green" : "neutral"}
+              vertical={vertical}
             />
           </div>
 
-          <GlassCard padding="lg">
+          <GlassCard padding="lg" vertical={vertical}>
             <h3 className="font-display text-2xl font-light text-[#f3ece1] mb-2">
               Tu reputación, en tiempo real
             </h3>
@@ -230,6 +266,7 @@ export default function DashboardClient({
               caption="Clientes en tu base"
               icon="◐"
               accent="orange"
+              vertical={vertical}
               href="/panel/clientes?tab=todos"
               footer={
                 <>
@@ -241,22 +278,24 @@ export default function DashboardClient({
             <MetricTile
               label="Nuevos del Mes"
               value={newCustomersThisMonth}
-              caption="Primer corte este mes"
+              caption={vertical === "GIMNASIO" ? "Primera asistencia este mes" : "Primer corte este mes"}
               icon="✦"
               accent="green"
+              vertical={vertical}
             />
             <MetricTile
               label="Recurrentes"
               value={recurrentCustomers}
-              caption="2+ cortes registrados"
+              caption={vertical === "GIMNASIO" ? "2+ asistencias registradas" : "2+ cortes registrados"}
               icon="↻"
               accent="neutral"
+              vertical={vertical}
               href="/panel/clientes?tab=recurrentes"
             />
           </div>
 
           {/* VIPs */}
-          <GlassCard padding="lg">
+          <GlassCard padding="lg" vertical={vertical}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display text-xl font-light text-[#f3ece1] flex items-center gap-2">
                 <span>⭐</span> Tus Mejores Clientes (VIPs)
@@ -274,7 +313,7 @@ export default function DashboardClient({
                 {vipCustomers.map((cust) => (
                   <div
                     key={cust.id}
-                    className="flex justify-between items-center p-3 bg-[#0a0807]/60 border border-[#2a2520] hover:border-[#3a2f25] transition-colors rounded-xl"
+                    className={`flex justify-between items-center p-3 border transition-colors rounded-xl ${vertical === "GIMNASIO" ? "bg-[#070b14]/60 border-[#1a2540] hover:border-[#1e293b]" : "bg-[#0a0807]/60 border-[#2a2520] hover:border-[#3a2f25]"}`}
                   >
                     <div>
                       <p className="font-display text-sm text-[#f3ece1] font-light flex items-center gap-2">
@@ -284,12 +323,12 @@ export default function DashboardClient({
                         </span>
                       </p>
                       <p className="font-mono text-[10px] text-[#5c554c] mt-0.5">
-                        {cust.cutsCount} visitas realizadas
+                        {cust.cutsCount} {vertical === "GIMNASIO" ? "asistencias realizadas" : "visitas realizadas"}
                       </p>
                     </div>
                     <a
                       href={`https://wa.me/${cust.whatsapp}?text=${encodeURIComponent(
-                        `¡Hola ${cust.name || ""}! Gracias por ser uno de nuestros clientes VIP en ${barbershopName}. Te esperamos pronto.`,
+                        `¡Hola ${cust.name || ""}! Gracias por ser uno de nuestros miembros VIP en ${barbershopName}. Te esperamos pronto.`,
                       )}`}
                       target="_blank"
                       rel="noreferrer"
@@ -314,6 +353,7 @@ export default function DashboardClient({
               caption="Clientes que regresan"
               icon="↻"
               accent={retentionRate >= 50 ? "green" : "amber"}
+              vertical={vertical}
               footer={
                 <>
                   <span>●</span>
@@ -324,9 +364,10 @@ export default function DashboardClient({
             <MetricTile
               label="Total Recurrentes"
               value={recurrentCustomers}
-              caption="2+ cortes registrados"
+              caption={vertical === "GIMNASIO" ? "2+ asistencias registradas" : "2+ cortes registrados"}
               icon="✓"
               accent="green"
+              vertical={vertical}
             />
             <MetricTile
               label="En Riesgo"
@@ -334,18 +375,19 @@ export default function DashboardClient({
               caption="Excedieron 1.2x su patrón"
               icon="!"
               accent={overdueCustomers.length > 0 ? "amber" : "neutral"}
+              vertical={vertical}
               href="/panel/clientes?tab=recurrentes"
             />
           </div>
 
-          <GlassCard padding="lg">
+          <GlassCard padding="lg" vertical={vertical}>
             <h3 className="font-display text-xl font-light text-[#f3ece1] mb-2">
               Fidelización que se mide sola
             </h3>
             <p className="text-sm text-[#a89e90] leading-relaxed">
-              Cada cliente tiene su propio patrón de corte. BarberOS aprende cuándo es el
-              momento justo para recordarles y nunca pierde una oportunidad de traerlos de
-              vuelta. La retención se construye con avisos precisos, no spam.
+              {vertical === "GIMNASIO"
+                ? "Cada miembro tiene su propio patrón de asistencia. GymOS aprende cuándo es el momento justo para recordarles su rutina y nunca pierde una oportunidad de traerlos de vuelta. La retención se construye con avisos precisos, no spam."
+                : "Cada cliente tiene su propio patrón de corte. BarberOS aprende cuándo es el momento justo para recordarles y nunca pierde una oportunidad de traerlos de vuelta. La retención se construye con avisos precisos, no spam."}
             </p>
           </GlassCard>
         </div>
@@ -360,6 +402,7 @@ export default function DashboardClient({
               caption="Total fuera de patrón"
               icon="⚠"
               accent={customersToRecover.length > 0 ? "amber" : "neutral"}
+              vertical={vertical}
             />
             <MetricTile
               label="1.2x Excedido"
@@ -367,17 +410,19 @@ export default function DashboardClient({
               caption="Superaron su ciclo"
               icon="↘"
               accent="orange"
+              vertical={vertical}
             />
             <MetricTile
-              label="0.8x Pre-corte"
+              label={vertical === "GIMNASIO" ? "0.8x Pre-asistencia" : "0.8x Pre-corte"}
               value={preCutCustomers.length}
               caption="Pronto a salir"
               icon="⏰"
               accent="amber"
+              vertical={vertical}
             />
           </div>
 
-          <GlassCard padding="lg">
+          <GlassCard padding="lg" vertical={vertical}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-display text-xl font-light text-[#f3ece1] flex items-center gap-2">
@@ -394,7 +439,9 @@ export default function DashboardClient({
 
             {customersToRecover.length === 0 ? (
               <p className="font-mono text-xs text-emerald-400 italic">
-                ¡Excelente! Todos tus clientes están dentro de su ciclo habitual de corte.
+                {vertical === "GIMNASIO"
+                  ? "¡Excelente! Todos tus miembros están dentro de su ciclo habitual de asistencia."
+                  : "¡Excelente! Todos tus clientes están dentro de su ciclo habitual de corte."}
               </p>
             ) : (
               <div className="space-y-2">
@@ -403,14 +450,17 @@ export default function DashboardClient({
                   const days = cust.metrics.daysSinceLastVisit || 0;
                   const pattern = cust.metrics.avgIntervalDays;
 
+                  const unit = vertical === "GIMNASIO" ? "asistencia" : "corte";
+                  const actionWord = vertical === "GIMNASIO" ? "mantener tu rutina fitness" : "renovar tu estilo";
+
                   const msgText = isOverdue
-                    ? `¡Hola ${cust.name || ""}! Te extrañamos en ${barbershopName}. Tu tiempo habitual de corte es cada ${pattern} días y han pasado ${days} días. ¡Te esperamos para renovar tu estilo!`
-                    : `¡Hola ${cust.name || ""}! En ${barbershopName} recordamos que ya casi se cumple tu ciclo habitual de corte (hace ${days} días). ¿Te agendamos un espacio?`;
+                    ? `¡Hola ${cust.name || ""}! Te extrañamos en ${barbershopName}. Tu tiempo habitual de ${unit} es cada ${pattern} días y han pasado ${days} días. ¡Te esperamos para ${actionWord}!`
+                    : `¡Hola ${cust.name || ""}! En ${barbershopName} recordamos que ya casi se cumple tu ciclo habitual de ${unit} (hace ${days} días). ¿Te agendamos un espacio?`;
 
                   return (
                     <div
                       key={cust.id}
-                      className="flex justify-between items-center p-3 bg-[#0a0807]/60 border border-[#2a2520] hover:border-[#3a2f25] transition-colors rounded-xl"
+                      className={`flex justify-between items-center p-3 border transition-colors rounded-xl ${vertical === "GIMNASIO" ? "bg-[#070b14]/60 border-[#1a2540] hover:border-[#1e293b]" : "bg-[#0a0807]/60 border-[#2a2520] hover:border-[#3a2f25]"}`}
                     >
                       <div>
                         <div className="flex items-center gap-2">
@@ -425,7 +475,7 @@ export default function DashboardClient({
                                 : "bg-amber-950/40 text-amber-400 border-amber-800",
                             ].join(" ")}
                           >
-                            {isOverdue ? "1.2x Excedido" : "0.8x Pre-corte"}
+                            {isOverdue ? "1.2x Excedido" : (vertical === "GIMNASIO" ? "0.8x Pre-asistencia" : "0.8x Pre-corte")}
                           </span>
                         </div>
                         <p className="font-mono text-[10px] text-[#5c554c] mt-0.5">
@@ -471,22 +521,22 @@ export default function DashboardClient({
         </div>
 
         {recentVisits.length === 0 ? (
-          <GlassCard padding="lg">
+          <GlassCard padding="lg" vertical={vertical}>
             <p className="font-display italic text-lg text-[#5c554c] mb-2 text-center">
               No hay visitas registradas el día de hoy
             </p>
             <p className="font-mono text-[10px] text-[#5c554c] tracking-widest uppercase text-center">
-              Usa el botón "Registrar corte" arriba para añadir un registro manual.
+              Usa el botón {vertical === "GIMNASIO" ? '"Registrar Asistencia"' : '"Registrar Corte"'} arriba para añadir un registro manual.
             </p>
           </GlassCard>
         ) : (
-          <GlassCard padding="sm" className="overflow-x-auto">
+          <GlassCard padding="sm" className="overflow-x-auto" vertical={vertical}>
             <table className="w-full text-left font-mono text-xs text-[#a89e90]">
               <thead>
-                <tr className="border-b border-[#3a2f25]/60 text-[#5c554c] uppercase">
+                <tr className={`border-b ${vertical === "GIMNASIO" ? "border-[#1a2540]/60" : "border-[#3a2f25]/60"} text-[#5c554c] uppercase`}>
                   <th className="py-3 px-3">Cliente</th>
                   <th className="py-3 px-3">WhatsApp</th>
-                  <th className="py-3 px-3">Cortes</th>
+                  <th className="py-3 px-3">{vertical === "GIMNASIO" ? "Asistencias" : "Cortes"}</th>
                   <th className="py-3 px-3">Estado</th>
                   <th className="py-3 px-3">Calificación</th>
                   <th className="py-3 px-3 text-right">Hora</th>
@@ -496,7 +546,7 @@ export default function DashboardClient({
                 {recentVisits.map((visit) => (
                   <tr
                     key={visit.id}
-                    className="border-b border-[#2a2520]/40 hover:bg-[#0a0807]/30 transition-colors"
+                    className={`border-b ${vertical === "GIMNASIO" ? "border-[#1a2540]/40 hover:bg-[#070b14]/30" : "border-[#2a2520]/40 hover:bg-[#0a0807]/30"} transition-colors`}
                   >
                     <td className="py-3 px-3 font-display text-base text-[#f3ece1] font-light">
                       {visit.customerName}

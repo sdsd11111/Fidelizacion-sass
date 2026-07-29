@@ -11,8 +11,11 @@ export default async function BarberosPage() {
 
   const barbershop = await prisma.barbershop.findUnique({
     where: { id: barbershopId },
-    select: { whatsappNumber: true, currentBoxCode: true, name: true },
+    select: { whatsappNumber: true, currentBoxCode: true, name: true, vertical: true },
   });
+
+  const vertical = barbershop?.vertical ?? "BARBERIA";
+  const isGym = vertical === "GIMNASIO";
 
   const staff = await prisma.barberStaff.findMany({
     where: { barbershopId },
@@ -94,17 +97,19 @@ export default async function BarberosPage() {
     <div className="max-w-6xl mx-auto space-y-6 pb-32">
       {/* HERO */}
       <PanelHero
-        imageUrl="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=1600&q=80"
+        imageUrl={isGym ? "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&q=80" : "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=1600&q=80"}
         imagePosition="center 30%"
+        accentColor={isGym ? "#3b82f6" : "#d97644"}
         eyebrow="Rendimiento por Persona"
         badge={
-          <span className="bg-[#e8a33d]/15 text-[#e8a33d] border border-[#e8a33d]/30 px-2 py-0.5 text-[9px] font-mono rounded-full uppercase tracking-[0.2em]">
+          <span className={`${isGym ? "bg-[#3b82f6]/15 text-[#60a5fa] border-[#3b82f6]/30" : "bg-[#e8a33d]/15 text-[#e8a33d] border-[#e8a33d]/30"} border px-2 py-0.5 text-[9px] font-mono rounded-full uppercase tracking-[0.2em]`}>
             ★ {generalAvg.toFixed(1)} Promedio
           </span>
         }
-        title="Barberos"
-        subtitle="Mide el desempeño de cada profesional: calificaciones, distribución de estrellas y reseñas reales de tus clientes."
+        title={isGym ? "Entrenadores" : "Barberos"}
+        subtitle={isGym ? "Mide el desempeño de cada entrenador: calificaciones, distribución de estrellas y reseñas reales de tus miembros." : "Mide el desempeño de cada profesional: calificaciones, distribución de estrellas y reseñas reales de tus clientes."}
         minHeight={300}
+        vertical={vertical}
       />
 
       {/* MÉTRICAS RÁPIDAS */}
@@ -115,6 +120,7 @@ export default async function BarberosPage() {
           caption="Promedio de todas las reseñas"
           icon="★"
           accent="amber"
+          vertical={vertical}
         />
         <MetricTile
           label="Total Reseñas"
@@ -122,13 +128,15 @@ export default async function BarberosPage() {
           caption="Votos acumulados"
           icon="✎"
           accent="orange"
+          vertical={vertical}
         />
         <MetricTile
-          label="Profesionales"
+          label={isGym ? "Entrenadores" : "Profesionales"}
           value={staffStats.length}
           caption={unassignedCount > 0 ? `+${unassignedCount} sin asignar` : "Activos"}
           icon="✦"
           accent="green"
+          vertical={vertical}
         />
       </div>
 
@@ -140,6 +148,7 @@ export default async function BarberosPage() {
         unassignedCount={unassignedCount}
         whatsappNumber={barbershop?.whatsappNumber || ""}
         currentBoxCode={barbershop?.currentBoxCode || ""}
+        vertical={vertical}
       />
     </div>
   );

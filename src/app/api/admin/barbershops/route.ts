@@ -23,6 +23,9 @@ const CreateBarbershopSchema = z.object({
   salesAgent: z.string().optional(),
   ownerPhone: z.string().optional(),
   planType: z.enum(["PRO", "PREMIUM"]).default("PRO"),
+  // Vertical del negocio: BARBERIA (default, mantiene retrocompatibilidad) o GIMNASIO.
+  // Es un duplicado exacto del flujo existente — la lógica del panel no cambia.
+  vertical: z.enum(["BARBERIA", "GIMNASIO"]).default("BARBERIA"),
 });
 
 // GET /api/admin/barbershops - Listar todas las barberías
@@ -62,6 +65,38 @@ export async function POST(request: NextRequest) {
     const data = parsed.data;
     const whatsapp = normalizeWhatsapp(data.whatsappNumber);
 
+    // EXCEPCIÓN DE PRUEBAS: el número 593967491847 pertenece al dueño y se reutiliza
+    // constantemente para probar el flujo. Permitimos re-crear el registro eliminándolo
+    // previamente si ya existe. NO aplicar a otros números.
+    const TEST_WHATSAPP_NUMBERS = new Set(["593967491847"]);
+    if (TEST_WHATSAPP_NUMBERS.has(whatsapp)) {
+      try {
+        const existing = await prisma.barbershop.findFirst({ where: { whatsappNumber: whatsapp } });
+        if (existing) {
+          // Limpiar registros dependientes antes de eliminar (mismo orden que DELETE endpoint)
+          const customers = await prisma.barberCustomer.findMany({ where: { barbershopId: existing.id }, select: { id: true } });
+          const customerIds = customers.map((c) => c.id);
+          if (customerIds.length > 0) {
+            await prisma.barberVisit.deleteMany({ where: { customerId: { in: customerIds } } });
+          }
+          // Limpiar visitas por barbershopId directamente (pueden tener profileId sin customerId)
+          await prisma.barberVisit.deleteMany({ where: { barbershopId: existing.id } });
+          // Limpiar perfiles de clientes
+          await prisma.customerProfile.deleteMany({ where: { barbershopId: existing.id } });
+          await prisma.barberCustomer.deleteMany({ where: { barbershopId: existing.id } });
+          await prisma.barberStaff.deleteMany({ where: { barbershopId: existing.id } });
+          await prisma.magicToken.deleteMany({ where: { barbershopId: existing.id } });
+          await prisma.pushSubscription.deleteMany({ where: { barbershopId: existing.id } });
+          await prisma.motorSnapshot.deleteMany({ where: { barbershopId: existing.id } });
+          await prisma.testExclusion.deleteMany({ where: { barbershopId: existing.id } });
+          await prisma.barbershop.delete({ where: { id: existing.id } });
+        }
+      } catch (cleanupError) {
+        console.warn("[Admin POST API] Test number cleanup failed (non-critical):", cleanupError);
+        // Continuar con la creación — el registro puede haber sido eliminado concurrentemente
+      }
+    }
+
     // Nombre dinámico de la instancia basada en el nombre de la barbería
     const evolutionInstanceName = `barber_${whatsapp}`;
 
@@ -98,6 +133,7 @@ export async function POST(request: NextRequest) {
         salesAgent: data.salesAgent?.trim() || null,
         planStatus: "TRIAL",
         planType: data.planType || "PRO",
+        vertical: data.vertical || "BARBERIA",
         trialEndsAt,
         connectionStatus: "DISCONNECTED",
         loginPin,
@@ -160,18 +196,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Actualizar barbería con datos de comisión
-    const updatedBarbershop = await prisma.barbershop.update({
-      where: { id: barbershop.id },
-      data: {
-        hasCommission: commissionData.hasCommission,
-        commissionStatus: commissionData.commissionStatus,
-        referredByName: commissionData.referredByName,
-        referredByCode: commissionData.referredByCode,
-      },
-    });
+    // Actualizar barbería con datos de comisión (envuelto en try-catch para no romper el flujo)
+    let finalBarbershop = barbershop;
+    try {
+      finalBarbershop = await prisma.barbershop.update({
+        where: { id: barbershop.id },
+        data: {
+          hasCommission: commissionData.hasCommission,
+          commissionStatus: commissionData.commissionStatus,
+          referredByName: commissionData.referredByName,
+          referredByCode: commissionData.referredByCode,
+        },
+      });
+    } catch (updateError) {
+      console.error("[Admin POST API] Error al actualizar comisión (no crítico):", updateError);
+      // El negocio ya fue creado exitosamente, retornamos el registro original
+    }
 
-    return NextResponse.json(updatedBarbershop, { status: 201 });
+    return NextResponse.json(finalBarbershop, { status: 201 });
   } catch (error) {
     console.error("[Admin POST API] Error:", error);
     if (typeof error === "object" && error !== null && "code" in error && (error as { code: string }).code === "P2002") {

@@ -129,12 +129,16 @@ export default async function ClientesPage({
   const recurrentProfiles = enrichedProfiles.filter((p) => p.isRecurrent).length;
   const newThisMonth = enrichedProfiles.filter((p) => p.isNewThisMonth).length;
 
+  const vertical = barbershop?.vertical ?? "BARBERIA";
+  const isGym = vertical === "GIMNASIO";
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-32">
       {/* HERO */}
       <PanelHero
-        imageUrl="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1600&q=80"
+        imageUrl={isGym ? "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=1600&q=80" : "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1600&q=80"}
         imagePosition="center 35%"
+        accentColor={isGym ? "#3b82f6" : "#d97644"}
         eyebrow="Tu Base Viva"
         badge={
           <span className="bg-[#f3ece1]/10 text-[#f3ece1] border border-[#f3ece1]/20 px-2 py-0.5 text-[9px] font-mono rounded-full uppercase tracking-[0.2em]">
@@ -142,11 +146,12 @@ export default async function ClientesPage({
           </span>
         }
         title="Clientes"
-        subtitle="Cada perfil cuenta una historia: desde el Consumidor Final hasta tus clientes VIP. Gestiona, filtra y entiéndelos."
+        subtitle={isGym ? "Cada perfil cuenta una historia: desde el cliente recurrente hasta tus miembros VIP. Gestiona, filtra y entiéndelos." : "Cada perfil cuenta una historia: desde el Consumidor Final hasta tus clientes VIP. Gestiona, filtra y entiéndelos."}
         action={
           isPremium && <ExportDataButton variant="compact" />
         }
         minHeight={300}
+        vertical={vertical}
       />
 
       {/* MÉTRICAS RÁPIDAS */}
@@ -157,20 +162,23 @@ export default async function ClientesPage({
           caption="Clientes en tu base"
           icon="◐"
           accent="orange"
+          vertical={vertical}
         />
         <MetricTile
           label="Recurrentes"
           value={recurrentProfiles}
-          caption="2+ cortes realizados"
+          caption={isGym ? "2+ asistencias realizadas" : "2+ cortes realizados"}
           icon="↻"
           accent="amber"
+          vertical={vertical}
         />
         <MetricTile
           label="Nuevos del Mes"
           value={newThisMonth}
-          caption="Primer corte este mes"
+          caption={isGym ? "Primera asistencia este mes" : "Primer corte este mes"}
           icon="✦"
           accent="green"
+          vertical={vertical}
         />
       </div>
 
@@ -180,6 +188,7 @@ export default async function ClientesPage({
         initialTab={tab ?? "todos"}
         requiredCuts={requiredCuts}
         loyaltyMode={barbershop?.loyaltyMode ?? "BY_PROFILE"}
+        vertical={vertical}
       />
     </div>
   );

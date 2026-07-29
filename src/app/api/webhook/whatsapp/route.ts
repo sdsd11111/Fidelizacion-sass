@@ -90,6 +90,137 @@ async function processMessage(payload: WebhookPayload) {
   const currentCode = barbershop.currentBoxCode?.toUpperCase() || "";
   const isCheckInMessage = currentCode.length > 0 && messageText.toUpperCase().includes(currentCode);
 
+  // --- FLUJO WALLET (GIMNASIO) ---
+  const isTiendaMsg = messageText.toLowerCase().includes("adquirir un producto") || messageText.toLowerCase().includes("adquirió un producto");
+  const isMensualidadMsg = messageText.toLowerCase().includes("referí a un nuevo miembro") || messageText.toLowerCase().includes("referi a un nuevo miembro");
+
+  if (isTiendaMsg || isMensualidadMsg) {
+    const pushName = (payload.data as any)?.pushName || "Cliente";
+
+    if (isTiendaMsg) {
+      await prisma.walletTransaction.create({
+        data: {
+          barbershopId: barbershop.id,
+          customerName: pushName,
+          customerPhone: whatsapp,
+          type: "TIENDA",
+          status: "PENDING",
+        },
+      });
+
+      sendWhatsAppMessage({
+        instance: barbershop.evolutionInstance,
+        apiKey: barbershop.evolutionApiKey,
+        to: whatsapp,
+        message: `🛍️ *¡Solicitud de Tienda recibida!*\n\nHola ${pushName}, tu compra ha sido enviada al administrador del gimnasio para su verificación.\n\nUna vez verificada, se acreditará tu saldo en la Wallet. 💪`,
+      }).catch((e) => console.error("[Wallet Tienda WA Error]:", e));
+
+      // Push notification al admin: nueva compra en tienda
+      prisma.pushSubscription
+        .findMany({ where: { barbershopId: barbershop.id } })
+        .then((subs) => {
+          const pushPayload = JSON.stringify({
+            title: "🛍️ ¡Nueva compra en Tienda!",
+            body: `${pushName} (+${whatsapp}) solicita verificación de compra en tienda.`,
+            url: "/panel/wallet",
+          });
+          subs.forEach((sub) => {
+            webpush.sendNotification(
+              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+              pushPayload
+            ).catch((err) => {
+              if (err.statusCode === 410 || err.statusCode === 404) {
+                prisma.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
+              }
+            });
+          });
+        })
+        .catch((e) => console.error("[WebPush Tienda] Error:", e));
+
+      return;
+    }
+
+    if (isMensualidadMsg) {
+      // Buscar planes configurados
+      const walletConfig = await prisma.walletConfig.findUnique({
+        where: { barbershopId: barbershop.id },
+      });
+
+      const plans: Array<{ id: string; name: string; price: number; percentage: number }> =
+        (walletConfig?.plans as any) || [];
+
+      if (plans.length === 0) {
+        sendWhatsAppMessage({
+          instance: barbershop.evolutionInstance,
+          apiKey: barbershop.evolutionApiKey,
+          to: whatsapp,
+          message: `💪 *¡Gracias por referir a un nuevo miembro!*\n\nTu referencia ha sido enviada al administrador del gimnasio para su confirmación.`,
+        }).catch((e) => console.error("[Wallet Mensualidad WA Error]:", e));
+
+        await prisma.walletTransaction.create({
+          data: {
+            barbershopId: barbershop.id,
+            customerName: pushName,
+            customerPhone: whatsapp,
+            type: "MENSUALIDAD",
+            status: "PENDING",
+            planName: "General / Sin plan especificado",
+          },
+        });
+      } else {
+        // Notificar que se registró la mensualidad pendiente
+        const plansListText = plans
+          .map((p) => `• *${p.name}* ($${p.price}) → Comisión: ${p.percentage}%`)
+          .join("\n");
+
+        await prisma.walletTransaction.create({
+          data: {
+            barbershopId: barbershop.id,
+            customerName: pushName,
+            customerPhone: whatsapp,
+            type: "MENSUALIDAD",
+            status: "PENDING",
+            planName: plans[0]?.name || "Plan Referido",
+            amount: plans[0]?.price || 0,
+            percentage: plans[0]?.percentage || 0,
+            credit: ((plans[0]?.price || 0) * (plans[0]?.percentage || 0)) / 100,
+          },
+        });
+
+        sendWhatsAppMessage({
+          instance: barbershop.evolutionInstance,
+          apiKey: barbershop.evolutionApiKey,
+          to: whatsapp,
+          message: `💪 *¡Referido registrado!*\n\nHola ${pushName}, recibimos tu reporte de referido. Se enviará a revisión con el administrador.\n\nPlanes disponibles para comisión:\n${plansListText}\n\n¡Gracias por hacer crecer la comunidad! 🔥`,
+        }).catch((e) => console.error("[Wallet Mensualidad WA Error]:", e));
+      }
+
+      // Push notification al admin: nuevo referido de mensualidad
+      prisma.pushSubscription
+        .findMany({ where: { barbershopId: barbershop.id } })
+        .then((subs) => {
+          const pushPayload = JSON.stringify({
+            title: "💪 ¡Nuevo Referido de Mensualidad!",
+            body: `${pushName} (+${whatsapp}) reportó un referido. Revisa Wallet para aprobar.`,
+            url: "/panel/wallet",
+          });
+          subs.forEach((sub) => {
+            webpush.sendNotification(
+              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+              pushPayload
+            ).catch((err) => {
+              if (err.statusCode === 410 || err.statusCode === 404) {
+                prisma.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
+              }
+            });
+          });
+        })
+        .catch((e) => console.error("[WebPush Mensualidad] Error:", e));
+
+      return;
+    }
+  }
+
   // Extraer nombre público del perfil de WhatsApp (pushName)
   const pushName = (payload.data as any)?.pushName || null;
 
@@ -178,19 +309,21 @@ async function processMessage(payload: WebhookPayload) {
       });
     }
 
-    // Crear visita (con staffId pre-asignado si vino del QR del barbero) + regenerar código EN PARALELO
+    const isGym = barbershop.vertical === "GIMNASIO";
+
+    // Crear visita (con staffId pre-asignado si vino del QR del entrenador) + regenerar código EN PARALELO
     const newCode = generateBoxCode();
     await Promise.all([
       prisma.barberVisit.create({
         data: {
           customerId: customer.id,
           barbershopId: barbershop.id,   // Scoping multi-tenant explícito
-          profileId: profileIdToUse,     // <- INYECTADO AHORA
-          status: "PENDING",
+          profileId: profileIdToUse,
+          status: isGym ? "APPROVED" : "PENDING", // Gimnasio auto-aprueba la visita para calificar de inmediato
           rating: null,
           staffId: preAssignedStaffId,
-          checkinMethod: "SELF",           // El cliente se auto-identificó por su propio WhatsApp
-          visitHour: getEcuadorHour(new Date()), // Franja horaria para análisis de capacidad (hora Ecuador, no UTC del servidor)
+          checkinMethod: "SELF",
+          visitHour: getEcuadorHour(new Date()),
         },
       }),
       prisma.barbershop.update({
@@ -199,48 +332,73 @@ async function processMessage(payload: WebhookPayload) {
       }),
     ]);
 
-    // PRIORIDAD 1: Enviar respuesta por WhatsApp PRIMERO (latencia mínima para el cliente)
-    sendWhatsAppMessage({
-      instance: barbershop.evolutionInstance,
-      apiKey: barbershop.evolutionApiKey,
-      to: whatsapp,
-      message: "¡Gracias! Avisándole a tu barbero para registrar tu corte. ✂️",
-    }).catch((err) => console.error("[WA Reply] Error:", err));
+    if (isGym) {
+      // En Gimnasio: transicionar inmediatamente a pedir calificación (AWAITING_RATING)
+      await prisma.barberCustomer.update({
+        where: { id: customer.id },
+        data: { sessionState: "AWAITING_RATING" },
+      });
+
+      // Obtener nombre del staff preasignado si existe
+      let staffNameText = "nosotros";
+      if (preAssignedStaffId) {
+        const staffObj = await prisma.barberStaff.findUnique({ where: { id: preAssignedStaffId } });
+        if (staffObj) staffNameText = staffObj.name;
+      }
+
+      sendWhatsAppMessage({
+        instance: barbershop.evolutionInstance,
+        apiKey: barbershop.evolutionApiKey,
+        to: whatsapp,
+        message: `💪 ¡Gracias por tu visita a ${barbershop.name}!\n\nPor último, del 1 al 5, ¿cómo calificas tu experiencia con ${staffNameText} hoy? ⭐`,
+      }).catch((err) => console.error("[WA Reply Gym] Error:", err));
+    } else {
+      // PRIORIDAD 1: Enviar respuesta por WhatsApp PRIMERO (latencia mínima para el cliente)
+      sendWhatsAppMessage({
+        instance: barbershop.evolutionInstance,
+        apiKey: barbershop.evolutionApiKey,
+        to: whatsapp,
+        message: "¡Gracias! Avisándole a tu barbero para registrar tu corte. ✂️",
+      }).catch((err) => console.error("[WA Reply] Error:", err));
+    }
 
     // PRIORIDAD 2: Enviar notificaciones push al barbero en segundo plano (no bloquea)
-    prisma.pushSubscription
-      .findMany({
-        where: { barbershopId: barbershop.id },
-      })
-      .then((subs) => {
-        const customerName = customer?.name || "Cliente Frecuente";
-        const pushPayload = JSON.stringify({
-          title: "✂️ ¡Nuevo Check-In!",
-          body: `El cliente "${customerName}" (+${whatsapp}) ha solicitado registrar su corte.`,
-          url: "/panel",
-        });
+    // En gimnasio NO se envían push de check-in (auto-aprobación directa a calificación)
+    if (!isGym) {
+      prisma.pushSubscription
+        .findMany({
+          where: { barbershopId: barbershop.id },
+        })
+        .then((subs) => {
+          const customerName = customer?.name || "Cliente Frecuente";
+          const pushPayload = JSON.stringify({
+            title: "✂️ ¡Nuevo Check-In!",
+            body: `El cliente "${customerName}" (+${whatsapp}) ha solicitado registrar su corte.`,
+            url: "/panel",
+          });
 
-        subs.forEach((sub) => {
-          webpush
-            .sendNotification(
-              {
-                endpoint: sub.endpoint,
-                keys: {
-                  p256dh: sub.p256dh,
-                  auth: sub.auth,
+          subs.forEach((sub) => {
+            webpush
+              .sendNotification(
+                {
+                  endpoint: sub.endpoint,
+                  keys: {
+                    p256dh: sub.p256dh,
+                    auth: sub.auth,
+                  },
                 },
-              },
-              pushPayload
-            )
-            .catch((err) => {
-              console.error("[WebPush] Fallo al notificar a endpoint:", sub.endpoint, err.message);
-              if (err.statusCode === 410 || err.statusCode === 404) {
-                prisma.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
-              }
-            });
-        });
-      })
-      .catch((e) => console.error("[WebPush] Error buscando suscripciones:", e));
+                pushPayload
+              )
+              .catch((err) => {
+                console.error("[WebPush] Fallo al notificar a endpoint:", sub.endpoint, err.message);
+                if (err.statusCode === 410 || err.statusCode === 404) {
+                  prisma.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
+                }
+              });
+          });
+        })
+        .catch((e) => console.error("[WebPush] Error buscando suscripciones:", e));
+    }
 
     return;
   }

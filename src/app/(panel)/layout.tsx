@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { deleteSession } from "@/lib/session";
 import { verifySession } from "@/lib/dal";
 import { isPremiumBarbershop } from "@/lib/plan-guard";
+import { prisma } from "@/lib/prisma";
 import PanelNav from "@/components/panel/PanelNav";
 import DirectorChatWidget from "@/components/panel/DirectorChatWidget";
 
@@ -19,12 +20,31 @@ export default async function PanelLayout({
   const session = await verifySession();
   const isPremium = await isPremiumBarbershop(session.barbershopId);
 
+  // Obtener la vertical del negocio para theming
+  // Primero intentamos desde la sesión (JWT), fallback a DB
+  let vertical = session.vertical || "BARBERIA";
+  if (!session.vertical) {
+    const shop = await prisma.barbershop.findUnique({
+      where: { id: session.barbershopId },
+      select: { vertical: true },
+    });
+    vertical = shop?.vertical || "BARBERIA";
+  }
+
+  const theme = await import("@/lib/vertical-theme").then(m => m.getTheme(vertical));
+
   return (
     // overflow-x-hidden defensivo: garantiza que NINGÚN hijo pueda
     // provocar scroll horizontal en el panel (común en listas de
     // staff, tablas, contenedores con whitespace-nowrap, etc.).
-    <div className="min-h-screen bg-[#0a0807] text-[#f3ece1] overflow-x-hidden">
-      <PanelNav logoutAction={logout} isPremium={isPremium} />
+    <div
+      className="min-h-screen overflow-x-hidden"
+      style={{
+        backgroundColor: theme.colors.bgPrimary,
+        color: theme.colors.textPrimary,
+      }}
+    >
+      <PanelNav logoutAction={logout} isPremium={isPremium} vertical={vertical} />
 
       {/* Main Content — con padding top para compensar el header fijo */}
       <main className="pt-16 min-h-screen">

@@ -31,6 +31,7 @@ interface ClientesTabsProps {
   initialTab: string;
   requiredCuts: number;
   loyaltyMode: string;
+  vertical?: string;
 }
 
 function StarRating({ rating }: { rating: number | null }) {
@@ -55,9 +56,11 @@ function StarRating({ rating }: { rating: number | null }) {
 function LoyaltyBar({
   cutsCount,
   requiredCuts,
+  isGym = false,
 }: {
   cutsCount: number;
   requiredCuts: number;
+  isGym?: boolean;
 }) {
   const progress = Math.min((cutsCount % requiredCuts) / requiredCuts, 1) * 100;
   const completedCycles = Math.floor(cutsCount / requiredCuts);
@@ -69,15 +72,15 @@ function LoyaltyBar({
           {cutsCount % requiredCuts}/{requiredCuts} para premio
         </span>
         {completedCycles > 0 && (
-          <span className="font-mono text-[10px] text-[#d97644]">
+          <span className="font-mono text-[10px]" style={{ color: isGym ? "#3b82f6" : "#d97644" }}>
             🎁 {completedCycles}x completado
           </span>
         )}
       </div>
       <div className="h-1 bg-[#2a2520] rounded-full overflow-hidden">
         <div
-          className="h-full bg-[#d97644] rounded-full transition-all"
-          style={{ width: `${progress}%` }}
+          className="h-full rounded-full transition-all"
+          style={{ width: `${progress}%`, backgroundColor: isGym ? "#3b82f6" : "#d97644" }}
         />
       </div>
     </div>
@@ -189,7 +192,7 @@ function CustomerDetailModal({
 
         {/* Barra de Fidelidad */}
         <div className="p-4 bg-[#0a0807]/50 border-b border-[#2a2520]">
-          <LoyaltyBar cutsCount={customer.cutsCount} requiredCuts={requiredCuts} />
+          <LoyaltyBar cutsCount={customer.cutsCount} requiredCuts={requiredCuts} isGym={false} />
         </div>
 
         {/* Contenido: Historial Cronológico de Visitas */}
@@ -291,11 +294,15 @@ function CustomerCard({
   customer,
   requiredCuts,
   onClick,
+  vertical = "BARBERIA",
 }: {
   customer: EnrichedCustomer;
   requiredCuts: number;
   onClick: () => void;
+  vertical?: string;
 }) {
+  const isGym = vertical === "GIMNASIO";
+  const accent = isGym ? "#3b82f6" : "#d97644";
   const lastVisitStr = customer.lastVisitAt
     ? new Date(customer.lastVisitAt).toLocaleDateString("es-EC", {
         day: "2-digit",
@@ -315,12 +322,15 @@ function CustomerCard({
   return (
     <div
       onClick={onClick}
-      className="bg-[#131110] border border-[#2a2520] p-5 hover:border-[#d97644] transition-all cursor-pointer group hover:bg-[#181513] relative"
+      className="bg-[#131110] border border-[#2a2520] p-5 transition-all cursor-pointer group hover:bg-[#181513] relative"
+      style={{ borderColor: undefined }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = accent)}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#2a2520')}
     >
       {/* Header del cliente */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1 min-w-0">
-          <p className="font-display text-lg font-light text-[#f3ece1] truncate group-hover:text-[#d97644] transition-colors">
+          <p className="font-display text-lg font-light text-[#f3ece1] truncate transition-colors" style={{ color: undefined }}>
             {customer.name || "Perfil Sin Nombre"}
           </p>
           <div className="flex flex-col mt-0.5">
@@ -384,7 +394,7 @@ function CustomerCard({
             {customer.cutsCount}
           </p>
           <p className="font-mono text-[9px] uppercase text-[#5c554c] tracking-wider">
-            Cortes
+            {isGym ? "Asistencias" : "Cortes"}
           </p>
         </div>
         <div className="bg-[#0a0807] p-2.5">
@@ -407,7 +417,7 @@ function CustomerCard({
 
       {/* Último corte */}
       <div className="flex justify-between items-center mb-3 font-mono text-[10px]">
-        <span className="text-[#5c554c]">Último corte:</span>
+        <span className="text-[#5c554c]">{isGym ? "Última asistencia:" : "Último corte:"}</span>
         <span className="text-[#a89e90]">
           {lastVisitStr}
           {daysSinceVisit !== null && (
@@ -423,10 +433,10 @@ function CustomerCard({
       </div>
 
       {/* Barra de fidelidad */}
-      <LoyaltyBar cutsCount={customer.cutsCount} requiredCuts={requiredCuts} />
+      <LoyaltyBar cutsCount={customer.cutsCount} requiredCuts={requiredCuts} isGym={isGym} />
 
       {/* Indicador de ver historial */}
-      <div className="mt-3 pt-2 border-t border-[#2a2520]/50 flex justify-between items-center font-mono text-[9px] text-[#5c554c] group-hover:text-[#d97644] transition-colors">
+      <div className="mt-3 pt-2 border-t border-[#2a2520]/50 flex justify-between items-center font-mono text-[9px] text-[#5c554c] transition-colors">
         <span>Ver historial completo</span>
         <span>🔍 Ver detalle →</span>
       </div>
@@ -466,6 +476,7 @@ export default function ClientesTabs({
   initialTab,
   requiredCuts,
   loyaltyMode,
+  vertical = "BARBERIA",
 }: ClientesTabsProps) {
   const [activeTab, setActiveTab] = useState<"todos" | "nuevos" | "recurrentes">(
     (["todos", "nuevos", "recurrentes"].includes(initialTab)
@@ -502,28 +513,36 @@ export default function ClientesTabs({
     <div className="space-y-6">
       {/* Tabs */}
       <div className="flex gap-0 border border-[#2a2520] overflow-hidden">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 py-3 px-4 font-mono text-xs tracking-wider uppercase transition-colors ${
-              activeTab === tab.id
-                ? "bg-[#d97644] text-[#0a0807] font-bold"
-                : "bg-[#0a0807] text-[#5c554c] hover:text-[#f3ece1] hover:bg-[#131110]"
-            }`}
-          >
-            {tab.label}
-            <span
-              className={`ml-2 px-1.5 py-0.5 rounded-full text-[10px] ${
-                activeTab === tab.id
-                  ? "bg-[#0a0807]/20 text-[#0a0807]"
-                  : "bg-[#2a2520] text-[#a89e90]"
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          const isGym = vertical === "GIMNASIO";
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-3 px-4 font-mono text-xs tracking-wider uppercase transition-colors ${
+                isActive
+                  ? isGym
+                    ? "bg-[#3b82f6] text-[#070b14] font-bold"
+                    : "bg-[#d97644] text-[#0a0807] font-bold"
+                  : isGym
+                    ? "bg-[#070b14] text-[#475569] hover:text-[#e2e8f0] hover:bg-[#0c1220]"
+                    : "bg-[#0a0807] text-[#5c554c] hover:text-[#f3ece1] hover:bg-[#131110]"
               }`}
             >
-              {tab.count}
-            </span>
-          </button>
-        ))}
+              {tab.label}
+              <span
+                className={`ml-2 px-1.5 py-0.5 rounded-full text-[10px] ${
+                  isActive
+                    ? isGym ? "bg-[#070b14]/20 text-[#070b14]" : "bg-[#0a0807]/20 text-[#0a0807]"
+                    : isGym ? "bg-[#1e293b] text-[#94a3b8]" : "bg-[#2a2520] text-[#a89e90]"
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Ordenamiento y búsqueda */}
@@ -545,6 +564,7 @@ export default function ClientesTabs({
               customer={customer}
               requiredCuts={requiredCuts}
               onClick={() => setSelectedCustomer(customer)}
+              vertical={vertical}
             />
           ))}
         </div>

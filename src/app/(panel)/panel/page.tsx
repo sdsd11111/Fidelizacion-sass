@@ -3,6 +3,7 @@ import { verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { isPremiumBarbershop } from "@/lib/plan-guard";
 import { calculateCustomerMetrics } from "@/lib/customer-intervals";
+import { getTheme } from "@/lib/vertical-theme";
 import DashboardClient from "@/components/panel/DashboardClient";
 import MotorSummaryWidget from "@/components/panel/MotorSummaryWidget";
 
@@ -124,18 +125,20 @@ export default async function DashboardPage() {
   const rawHealthScore = Math.round(repScore + retScore + newScore + inactiveScore + revScore);
   const healthScore = Math.min(100, Math.max(0, rawHealthScore));
 
+  const theme = getTheme(barbershop.vertical);
+
   let healthStatus = "Excelente";
   let healthDot = "bg-emerald-400";
-  let healthMessage = `Tu barbería está muy saludable. Esta semana registraste un alto retorno de clientes.`;
+  let healthMessage = theme.texts.healthExcellent;
 
   if (healthScore < 60) {
     healthStatus = "En Atención";
     healthDot = "bg-red-400";
-    healthMessage = `Atención requerida: tienes ${overdueCustomers.length} clientes que han superado su frecuencia habitual de corte (límite 1.2x).`;
+    healthMessage = theme.texts.healthAttention(overdueCustomers.length);
   } else if (healthScore < 80) {
     healthStatus = "Estable";
     healthDot = "bg-amber-400";
-    healthMessage = `Tu barbería está estable. Te recomendamos recordarles su corte a los clientes en límite 0.8x.`;
+    healthMessage = theme.texts.healthStable;
   }
 
   // VIPs
@@ -170,6 +173,7 @@ export default async function DashboardPage() {
     <DashboardClient
       barbershopId={barbershopId}
       barbershopName={barbershop.name}
+      vertical={barbershop.vertical || "BARBERIA"}
       isPremium={isPremium}
       healthScore={healthScore}
       healthStatus={healthStatus}

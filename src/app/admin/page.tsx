@@ -19,6 +19,7 @@ interface Barbershop {
   commissionStatus: string;
   referredByName: string | null;
   referredByCode: string | null;
+  vertical?: string; // BARBERIA | GIMNASIO (default BARBERIA para cuentas viejas)
 }
 
 export default function AdminDashboard() {
@@ -36,6 +37,7 @@ export default function AdminDashboard() {
   const [ownerPhone, setOwnerPhone] = useState("");
   const [salesAgent, setSalesAgent] = useState("");
   const [planType, setPlanType] = useState<"PRO" | "PREMIUM">("PRO");
+  const [vertical, setVertical] = useState<"BARBERIA" | "GIMNASIO">("BARBERIA");
 
   // Estado para la barbería en edición
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -47,6 +49,8 @@ export default function AdminDashboard() {
 
   // Estado para tab de vendedores
   const [activeTab, setActiveTab] = useState<"barbershops" | "vendedores">("barbershops");
+  // Filtro de vertical dentro del tab de negocios: BARBERIA | GIMNASIO | ALL
+  const [verticalFilter, setVerticalFilter] = useState<"BARBERIA" | "GIMNASIO" | "ALL">("ALL");
   const [vendedores, setVendedores] = useState<any[]>([]);
   const [showVendedorModal, setShowVendedorModal] = useState(false);
   const [editingVendedor, setEditingVendedor] = useState<any>(null);
@@ -181,6 +185,7 @@ export default function AdminDashboard() {
           ownerPhone: ownerPhone.trim() || undefined,
           salesAgent: salesAgent.trim() || undefined,
           planType,
+          vertical,
         }),
       });
 
@@ -194,6 +199,7 @@ export default function AdminDashboard() {
         setWhatsappNumber("");
         setGoogleMapsUrl("");
         setOwnerPhone("");
+        setVertical("BARBERIA");
         setSalesAgent("");
         fetchBarbershops(adminSecret);
       } else {
@@ -374,7 +380,7 @@ export default function AdminDashboard() {
                     : "text-[#5c554c] hover:text-[#f3ece1]"
                 }`}
               >
-                Barberías
+                Negocios
               </button>
               <button
                 onClick={() => setActiveTab("vendedores")}
@@ -407,25 +413,45 @@ export default function AdminDashboard() {
           {/* Formulario de Onboarding */}
           <div className="lg:col-span-1 bg-[#131110] border border-[#2a2520] p-8 space-y-6">
             <h3 className="font-display text-2xl font-light text-[#d97644]">
-              Nueva Barbería (Onboarding)
+              {vertical === "GIMNASIO" ? "Nuevo Gimnasio (Onboarding)" : "Nueva Barbería (Onboarding)"}
             </h3>
 
             {createdPin && (
               <div className="p-4 bg-green-950/40 border border-green-800 text-green-400 font-mono text-xs rounded space-y-2 animate-pulse-short">
-                <p className="font-bold text-[10px] tracking-wider uppercase">✨ ¡BARBERÍA CREADA CON ÉXITO!</p>
+                <p className="font-bold text-[10px] tracking-wider uppercase">
+                  {vertical === "GIMNASIO" ? "✨ ¡GIMNASIO CREADO CON ÉXITO!" : "✨ ¡BARBERÍA CREADA CON ÉXITO!"}
+                </p>
                 <p>Nombre: <span className="text-white">{createdShopName}</span></p>
                 <div className="p-3 bg-[#0a0807] border border-green-900 text-center rounded">
                   <p className="text-[10px] uppercase text-[#5c554c] tracking-wider mb-1">CÓDIGO PIN DE ACCESO</p>
                   <p className="text-2xl font-bold text-white tracking-[0.2em]">{createdPin}</p>
                 </div>
-                <p className="text-[9px] text-[#5c554c] text-center">Pásale este código al barbero para que ingrese desde /login.</p>
+                <p className="text-[9px] text-[#5c554c] text-center">
+                  {vertical === "GIMNASIO"
+                    ? "Pásale este código al dueño/encargado del gimnasio para que ingrese desde /login."
+                    : "Pásale este código al barbero para que ingrese desde /login."}
+                </p>
               </div>
             )}
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
-                  Nombre de la Barbería
+                  Vertical del Negocio
+                </label>
+                <select
+                  value={vertical}
+                  onChange={(e) => setVertical(e.target.value as "BARBERIA" | "GIMNASIO")}
+                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                >
+                  <option value="BARBERIA">💈 Barbería</option>
+                  <option value="GIMNASIO">🏋️ Gimnasio</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
+                  Nombre de la {vertical === "GIMNASIO" ? "Gimnasio" : "Barbería"}
                 </label>
                 <input
                   type="text"
@@ -451,6 +477,7 @@ export default function AdminDashboard() {
                 />
               </div>
 
+              {vertical === "BARBERIA" && (
               <div>
                 <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
                   Cortes Requeridos para Premio
@@ -464,6 +491,7 @@ export default function AdminDashboard() {
                   className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
                 />
               </div>
+              )}
 
               <div>
                 <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
@@ -493,20 +521,6 @@ export default function AdminDashboard() {
 
               <div>
                 <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
-                  Tipo de Plan
-                </label>
-                <select
-                  value={planType}
-                  onChange={(e) => setPlanType(e.target.value as "PRO" | "PREMIUM")}
-                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
-                >
-                  <option value="PRO">⚡ BarberOS PRO (Estándar)</option>
-                  <option value="PREMIUM">👑 BarberOS PREMIUM (IA Avanzada)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
                   Vendedor / Referido por (Opcional)
                 </label>
                 <input
@@ -522,24 +536,64 @@ export default function AdminDashboard() {
                 type="submit"
                 className="w-full py-3 font-mono text-xs tracking-[0.2em] uppercase text-[#0a0807] bg-[#d97644] hover:bg-[#e8854f] transition-colors pt-2"
               >
-                Crear Barbería
+                {vertical === "GIMNASIO" ? "Crear Gimnasio" : "Crear Barbería"}
               </button>
             </form>
           </div>
 
           {/* Listado y Gestión */}
           <div className="lg:col-span-2 bg-[#131110] border border-[#2a2520] p-8 space-y-6">
-            <h3 className="font-display text-2xl font-light text-[#f3ece1]">
-              Barberías Registradas ({barbershops.length})
-            </h3>
-            {barbershops.length === 0 ? (
-              <p className="font-mono text-xs text-[#5c554c]">No hay barberías registradas aún.</p>
+            <div className="flex justify-between items-center flex-wrap gap-4">
+              <h3 className="font-display text-2xl font-light text-[#f3ece1]">
+                {verticalFilter === "GIMNASIO"
+                  ? `Gimnasios Registrados (${barbershops.filter((s) => (s.vertical || "BARBERIA") === "GIMNASIO").length})`
+                  : verticalFilter === "BARBERIA"
+                  ? `Barberías Registradas (${barbershops.filter((s) => (s.vertical || "BARBERIA") === "BARBERIA").length})`
+                  : `Negocios Registrados (${barbershops.length})`}
+              </h3>
+              <div className="flex border border-[#2a2520]">
+                <button
+                  onClick={() => setVerticalFilter("BARBERIA")}
+                  className={`px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-colors ${
+                    verticalFilter === "BARBERIA"
+                      ? "bg-[#d97644] text-[#0a0807]"
+                      : "text-[#5c554c] hover:text-[#f3ece1]"
+                  }`}
+                >
+                  💈 Barberías
+                </button>
+                <button
+                  onClick={() => setVerticalFilter("GIMNASIO")}
+                  className={`px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-colors border-l border-[#2a2520] ${
+                    verticalFilter === "GIMNASIO"
+                      ? "bg-[#d97644] text-[#0a0807]"
+                      : "text-[#5c554c] hover:text-[#f3ece1]"
+                  }`}
+                >
+                  🏋️ Gimnasios
+                </button>
+                <button
+                  onClick={() => setVerticalFilter("ALL")}
+                  className={`px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-colors border-l border-[#2a2520] ${
+                    verticalFilter === "ALL"
+                      ? "bg-[#d97644] text-[#0a0807]"
+                      : "text-[#5c554c] hover:text-[#f3ece1]"
+                  }`}
+                >
+                  Todos
+                </button>
+              </div>
+            </div>
+            {barbershops.filter((s) => verticalFilter === "ALL" || (s.vertical || "BARBERIA") === verticalFilter).length === 0 ? (
+              <p className="font-mono text-xs text-[#5c554c]">
+                No hay {verticalFilter === "GIMNASIO" ? "gimnasios" : verticalFilter === "BARBERIA" ? "barberías" : "negocios"} registrados aún.
+              </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left font-mono text-xs text-[#a89e90]">
                   <thead>
                     <tr className="border-b border-[#2a2520] text-[#5c554c] uppercase">
-                      <th className="py-3">Barbería</th>
+                      <th className="py-3">Negocio</th>
                       <th className="py-3">WhatsApp</th>
                       <th className="py-3">Código PIN</th>
                     <th className="py-3">Comisión</th>
@@ -549,7 +603,9 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {barbershops.map((shop) => (
+                    {barbershops
+                      .filter((s) => verticalFilter === "ALL" || (s.vertical || "BARBERIA") === verticalFilter)
+                      .map((shop) => (
                       <tr key={shop.id} className="border-b border-[#1c1917] hover:bg-[#0a0807]">
                         {editingId === shop.id ? (
                           <>
@@ -624,7 +680,12 @@ export default function AdminDashboard() {
                           <>
                             {/* Fila de Lectura Normal */}
                             <td className="py-4 font-display text-base text-[#f3ece1] font-light">
-                              <div>{shop.name}</div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs" aria-hidden>
+                                  {(shop.vertical || "BARBERIA") === "GIMNASIO" ? "🏋️" : "💈"}
+                                </span>
+                                <span>{shop.name}</span>
+                              </div>
                               {shop.googleMapsUrl ? (
                                 <a
                                   href={shop.googleMapsUrl}

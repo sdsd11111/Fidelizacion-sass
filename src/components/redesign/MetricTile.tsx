@@ -25,6 +25,7 @@ interface MetricTileProps {
   /** Contenido opcional a la derecha del header. */
   headerExtra?: ReactNode;
   className?: string;
+  vertical?: string;
 }
 
 const accentMap: Record<
@@ -61,10 +62,6 @@ const accentMap: Record<
   },
 };
 
-/**
- * Tarjeta glassmórfica para mostrar una métrica. Reemplaza los bloques sólidos
- * apilados del dashboard con sensación de profundidad y aire.
- */
 export default function MetricTile({
   label,
   value,
@@ -76,27 +73,43 @@ export default function MetricTile({
   onClick,
   headerExtra,
   className = "",
+  vertical = "BARBERIA",
 }: MetricTileProps) {
+  const isGym = vertical === "GIMNASIO";
   const a = accentMap[accent];
+
+  // Ajustes de acentos para gimnasio cuando no es un estado específico (ej. verde)
+  const isAccentOrangeOrAmber = accent === "orange" || accent === "amber";
+
+  const cardBg = isGym ? "bg-[#0f2040]/80 backdrop-blur-xl" : "bg-[#1a1614]/70";
+  const cardBorder = isGym 
+    ? (isAccentOrangeOrAmber ? "border-[#3b82f6]/30" : a.border)
+    : a.border;
+  const valueColor = isGym
+    ? (isAccentOrangeOrAmber ? "text-[#3b82f6]" : accent === "neutral" ? "text-[#e2e8f0]" : a.value)
+    : a.value;
+  const iconBg = isGym
+    ? (isAccentOrangeOrAmber ? "bg-[#3b82f6]/10 text-[#3b82f6]" : a.bg)
+    : a.bg;
 
   const content = (
     <div
       className={[
-        "group relative rounded-2xl p-5 sm:p-6 h-full",
-        "bg-[#1a1614]/70 border backdrop-blur-md",
-        "shadow-[0_8px_30px_rgba(0,0,0,0.45)]",
-        "transition-all duration-200 ease-out",
-        href || onClick
-          ? "hover:-translate-y-0.5 hover:shadow-[0_12px_36px_rgba(0,0,0,0.55)] cursor-pointer"
-          : "",
-        a.border,
+        "group relative rounded-2xl p-5 sm:p-6 h-full border",
+        isGym
+          ? "shadow-[0_8px_24px_rgba(15,32,64,0.5)] transition-all duration-200 ease-out"
+          : "shadow-[0_8px_30px_rgba(0,0,0,0.45)] backdrop-blur-md transition-all duration-200 ease-out",
+        href || onClick ? "hover:-translate-y-0.5 hover:shadow-[0_12px_36px_rgba(0,0,0,0.55)] cursor-pointer" : "",
+        isGym ? "border-white/15" : cardBorder,
+        cardBg,
+        isGym ? "" : cardBorder,
         className,
       ].join(" ")}
     >
       {/* Línea superior sutil */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#f3ece1]/15 to-transparent"
+        className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${isGym ? "via-[#e2e8f0]/15" : "via-[#f3ece1]/15"} to-transparent`}
       />
 
       {/* HEADER */}
@@ -106,14 +119,15 @@ export default function MetricTile({
             <span
               className={[
                 "inline-flex items-center justify-center w-7 h-7 rounded-full text-sm shrink-0",
-                a.bg,
-                accent === "amber" ? "text-[#e8a33d]" : accent === "orange" ? "text-[#d97644]" : "",
+                iconBg,
+                !isGym && accent === "amber" ? "text-[#e8a33d]" : "",
+                !isGym && accent === "orange" ? "text-[#d97644]" : "",
               ].join(" ")}
             >
               {icon}
             </span>
           )}
-          <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#a89e90] truncate">
+          <span className={`font-mono text-[10px] tracking-[0.25em] uppercase ${isGym ? "text-slate-400" : "text-[#a89e90]"} truncate`}>
             {label}
           </span>
         </div>
@@ -124,15 +138,14 @@ export default function MetricTile({
       <div className="space-y-1">
         <p
           className={[
-            "font-display text-4xl sm:text-5xl font-light leading-none",
-            "group-hover:scale-[1.02] transition-transform",
-            a.value,
+            "font-display text-4xl sm:text-5xl font-light leading-none group-hover:scale-[1.02] transition-transform",
+            valueColor,
           ].join(" ")}
         >
           {value}
         </p>
         {caption && (
-          <p className="font-mono text-xs text-[#a89e90] leading-relaxed">{caption}</p>
+          <p className={`font-mono text-xs ${isGym ? "text-slate-300" : "text-[#a89e90]"} leading-relaxed`}>{caption}</p>
         )}
       </div>
 
@@ -140,9 +153,10 @@ export default function MetricTile({
       {footer && (
         <div
           className={[
-            "mt-4 pt-3 border-t border-[#3a2f25]/60",
+            "mt-4 pt-3 border-t",
+            isGym ? "border-[#1e293b]" : "border-[#3a2f25]/60",
             "font-mono text-[10px] flex items-center gap-1.5",
-            a.footerText,
+            isGym && isAccentOrangeOrAmber ? "text-[#3b82f6]" : a.footerText,
           ].join(" ")}
         >
           {footer}

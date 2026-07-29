@@ -33,6 +33,9 @@ model Barbershop {
   commissionStatus  String         @default("PENDING") // PENDING | CONFIRMED | REJECTED | NO_COMMISSION
   referredByName    String?        // Nombre del vendedor (si tiene comisión)
   referredByCode    String?        // Código QR del vendedor (si tiene comisión)
+  // Vertical del negocio — permite usar el mismo modelo para barberías y gimnasios (u otros).
+  // Por defecto BARBERIA para mantener compatibilidad con todas las cuentas existentes.
+  vertical          String         @default("BARBERIA") // BARBERIA | GIMNASIO
   // Motor config — umbrales de riesgo (configurables por barbería)
   riskThresholdNormal  Float       @default(0.8) // < 0.8x = Normal; 0.8x a 1.2x = Próximo a corte (Recordatorio preventivo); > 1.2x = En Riesgo
   riskThresholdAt      Float       @default(1.2) // > 1.2x = En Riesgo / Atrasado
@@ -50,6 +53,9 @@ model Barbershop {
   motorSnapshots    MotorSnapshot[]
   testExclusions    TestExclusion[]
   anonymousVisitCounter Int         @default(0) // Contador de visitas CF (Consumidor Final)
+
+  walletTransactions WalletTransaction[]
+  walletConfig       WalletConfig?
 }
 
 model MagicToken {
@@ -288,4 +294,51 @@ model ReferralComision {
 
   @@index([vendedorId])
   @@index([transactionId])
+}
+
+// ============================================================
+// SISTEMA WALLET (Exclusivo Gimnasio)
+// ============================================================
+
+enum WalletTxType {
+  TIENDA
+  MENSUALIDAD
+  REDEEM
+}
+
+enum WalletTxStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model WalletTransaction {
+  id             String         @id @default(cuid())
+  barbershopId   String
+  barbershop     Barbershop     @relation(fields: [barbershopId], references: [id], onDelete: Cascade)
+  customerName   String
+  customerPhone  String
+  type           WalletTxType
+  status         WalletTxStatus @default(PENDING)
+  amount         Float          @default(0)
+  percentage     Float          @default(0)
+  credit         Float          @default(0)
+  productName    String?
+  planName       String?
+  referredName   String?
+  adminNote      String?
+  createdAt      DateTime       @default(now())
+  processedAt    DateTime?
+
+  @@index([barbershopId])
+  @@index([customerPhone])
+  @@index([status])
+}
+
+model WalletConfig {
+  id           String     @id @default(cuid())
+  barbershopId String     @unique
+  barbershop   Barbershop @relation(fields: [barbershopId], references: [id], onDelete: Cascade)
+  plans        Json?      // Array of [{id, name, price, percentage}]
+  updatedAt    DateTime   @updatedAt
 }

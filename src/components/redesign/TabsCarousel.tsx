@@ -5,6 +5,7 @@ import { Children, useEffect, useRef, useState, type ReactNode } from "react";
 
 interface TabsCarouselProps {
   children: ReactNode;
+  vertical?: string;
 }
 
 /**
@@ -17,10 +18,11 @@ interface TabsCarouselProps {
  *   ha scrolleado o cuando todos los tabs caben.
  * - Desktop (≥ md): los tabs se alinean a la izquierda sin flecha.
  */
-export default function TabsCarousel({ children }: TabsCarouselProps) {
+export default function TabsCarousel({ children, vertical = "BARBERIA" }: TabsCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showHint, setShowHint] = useState(true);
   const [canScroll, setCanScroll] = useState(false);
+  const isGym = vertical === "GIMNASIO";
 
   // Detecta si hay overflow horizontal y si todavía no se ha scrolleado
   useEffect(() => {
@@ -83,7 +85,9 @@ export default function TabsCarousel({ children }: TabsCarouselProps) {
           aria-hidden
           className={[
             "pointer-events-none absolute top-0 right-0 bottom-0 w-12",
-            "bg-gradient-to-l from-[#0a0807] via-[#0a0807]/70 to-transparent",
+            isGym
+              ? "bg-gradient-to-l from-[#050a18] via-[#050a18]/70 to-transparent"
+              : "bg-gradient-to-l from-[#0a0807] via-[#0a0807]/70 to-transparent",
             "md:hidden",
             // Se desvanece cuando el usuario ya scrolleó al final
             "transition-opacity duration-300",
@@ -102,9 +106,13 @@ export default function TabsCarousel({ children }: TabsCarouselProps) {
             "md:hidden absolute top-1/2 -translate-y-1/2 right-1 z-10",
             "flex items-center justify-center",
             "w-8 h-8 rounded-full",
-            "bg-gradient-to-b from-[#e89263] to-[#d97644]",
-            "text-[#1a0f08]",
-            "shadow-[0_4px_12px_rgba(217,118,68,0.55)]",
+            isGym
+              ? "bg-gradient-to-b from-[#60a5fa] to-[#3b82f6]"
+              : "bg-gradient-to-b from-[#e89263] to-[#d97644]",
+            isGym ? "text-[#050a18]" : "text-[#1a0f08]",
+            isGym
+              ? "shadow-[0_4px_12px_rgba(59,130,246,0.55)]"
+              : "shadow-[0_4px_12px_rgba(217,118,68,0.55)]",
             // Animación pulsante suave
             "animate-[tabs-hint_1.6s_ease-in-out_infinite]",
           ].join(" ")}

@@ -18,19 +18,19 @@ interface SectionTabsProps {
   /** Variante visual: "pill" (segmented control como en la referencia fitness). */
   variant?: "pill" | "underline";
   className?: string;
+  vertical?: string;
 }
 
-/**
- * Tabs tipo píldora / segmented control con icono opcional y badge numérico.
- * Coherente con la paleta de marca: naranja activo, neutro inactivo.
- */
 export default function SectionTabs({
   tabs,
   activeTab,
   onChange,
   variant = "pill",
   className = "",
+  vertical = "BARBERIA",
 }: SectionTabsProps) {
+  const isGym = vertical === "GIMNASIO";
+
   if (variant === "underline") {
     return (
       <div className={`flex gap-1 overflow-x-auto ${className}`}>
@@ -42,7 +42,9 @@ export default function SectionTabs({
               onClick={() => onChange(tab.id)}
               className={[
                 "relative px-4 py-2 font-mono text-[10px] tracking-[0.25em] uppercase whitespace-nowrap transition-colors",
-                isActive ? "text-[#f3ece1]" : "text-[#5c554c] hover:text-[#a89e90]",
+                isActive
+                  ? isGym ? "text-[#e2e8f0]" : "text-[#f3ece1]"
+                  : isGym ? "text-[#475569] hover:text-[#94a3b8]" : "text-[#5c554c] hover:text-[#a89e90]",
               ].join(" ")}
             >
               {tab.icon && <span className="mr-1.5 align-middle">{tab.icon}</span>}
@@ -52,15 +54,15 @@ export default function SectionTabs({
                   className={[
                     "ml-2 px-1.5 py-0.5 rounded-full text-[9px]",
                     isActive
-                      ? "bg-[#d97644]/15 text-[#d97644]"
-                      : "bg-[#2a2520] text-[#a89e90]",
+                      ? isGym ? "bg-[#3b82f6]/20 text-[#3b82f6]" : "bg-[#d97644]/15 text-[#d97644]"
+                      : isGym ? "bg-[#1e293b] text-[#94a3b8]" : "bg-[#2a2520] text-[#a89e90]",
                   ].join(" ")}
                 >
                   {tab.badge}
                 </span>
               )}
               {isActive && (
-                <span className="absolute left-0 right-0 -bottom-px h-0.5 bg-[#d97644]" />
+                <span className={`absolute left-0 right-0 -bottom-px h-0.5 ${isGym ? "bg-[#3b82f6]" : "bg-[#d97644]"}`} />
               )}
             </button>
           );
@@ -73,12 +75,10 @@ export default function SectionTabs({
   return (
     <div
       className={[
-        // flex con min-w-max permite que los tabs mantengan su tamaño
-        // natural sin comprimirse. shrink-0 en cada botón garantiza que
-        // no se reduzcan. El scroll horizontal lo provee el contenedor
-        // padre (que tiene overflow-x-auto).
         "flex items-center gap-1 p-1 rounded-full shrink-0",
-        "bg-[#1a1614]/70 border border-[#3a2f25]/80",
+        isGym
+          ? "bg-[#0f172a]/80 border border-[#1e293b]"
+          : "bg-[#1a1614]/70 border border-[#3a2f25]/80",
         "backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)]",
         className,
       ].join(" ")}
@@ -98,8 +98,12 @@ export default function SectionTabs({
               "transition-all duration-200 ease-out",
               "active:scale-95",
               isActive
-                ? "bg-gradient-to-b from-[#e89263] to-[#d97644] text-[#1a0f08] shadow-[0_4px_12px_-2px_rgba(217,118,68,0.55)]"
-                : "text-[#a89e90] hover:text-[#f3ece1] hover:bg-[#f3ece1]/5",
+                ? isGym
+                  ? "bg-gradient-to-b from-[#60a5fa] to-[#3b82f6] text-[#070b14] shadow-[0_4px_12px_-2px_rgba(59,130,246,0.55)]"
+                  : "bg-gradient-to-b from-[#e89263] to-[#d97644] text-[#1a0f08] shadow-[0_4px_12px_-2px_rgba(217,118,68,0.55)]"
+                : isGym
+                  ? "text-[#94a3b8] hover:text-[#e2e8f0] hover:bg-[#e2e8f0]/5"
+                  : "text-[#a89e90] hover:text-[#f3ece1] hover:bg-[#f3ece1]/5",
             ].join(" ")}
           >
             {tab.icon && <span className="text-sm">{tab.icon}</span>}
@@ -109,8 +113,12 @@ export default function SectionTabs({
                 className={[
                   "ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold",
                   isActive
-                    ? "bg-[#1a0f08]/25 text-[#1a0f08]"
-                    : "bg-[#3a2f25] text-[#a89e90]",
+                    ? isGym
+                      ? "bg-[#070b14]/25 text-[#070b14]"
+                      : "bg-[#1a0f08]/25 text-[#1a0f08]"
+                    : isGym
+                      ? "bg-[#1e293b] text-[#94a3b8]"
+                      : "bg-[#3a2f25] text-[#a89e90]",
                 ].join(" ")}
               >
                 {tab.badge}

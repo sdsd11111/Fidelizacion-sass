@@ -21,6 +21,7 @@ export default async function ConfiguracionPage() {
       visitDurationMin: true,
       businessInfo: true,
       requiredCuts: true,
+      vertical: true,
     },
   });
 
@@ -37,7 +38,7 @@ export default async function ConfiguracionPage() {
           Configuración
         </h1>
         <p className="text-[#a89e90] mt-2 font-sans font-light">
-          Ajustes del motor y operativas de la barbería.
+          Ajustes del motor y operativas {barbershop.vertical === "GIMNASIO" ? "del gimnasio" : "de la barbería"}.
         </p>
       </div>
 

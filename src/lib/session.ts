@@ -11,6 +11,7 @@ export interface SessionPayload {
   planStatus: string;
   trialEndsAt: string | null;
   role: string;
+  vertical: string; // "BARBERIA" | "GIMNASIO"
 }
 
 /**

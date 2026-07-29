@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     const barbershop = await prisma.barbershop.findUnique({
       where: { id: barbershopId },
-      select: { evolutionInstance: true, connectionStatus: true, whatsappConnected: true },
+      select: { evolutionInstance: true, connectionStatus: true, whatsappConnected: true, vertical: true },
     });
 
     if (!barbershop) {
@@ -35,6 +35,22 @@ export async function GET(request: NextRequest) {
         where: { id: barbershopId },
         data: { connectionStatus: internalStatus },
       });
+    }
+
+    // AUTO-SYNC WEBHOOK AUTOMÁTICO (SOLO GIMNASIOS):
+    // Garantiza que el webhook del gimnasio apunte a este Vercel sin tocar las barberías en producción
+    if (internalStatus === "CONNECTED" && barbershop.vertical === "GIMNASIO") {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+      let webhookUrl = `${baseUrl}/api/webhook/whatsapp`;
+      if (!baseUrl) {
+        const protocol = request.headers.get("x-forwarded-proto") || "https";
+        const host = request.headers.get("host") || "fidelizacion-sass.vercel.app";
+        webhookUrl = `${protocol}://${host}/api/webhook/whatsapp`;
+      }
+      const { configureEvolutionWebhook } = await import("@/lib/evolution");
+      configureEvolutionWebhook(barbershop.evolutionInstance, webhookUrl).catch((err) =>
+        console.error("[Auto-Sync Webhook Gym] Error:", err)
+      );
     }
 
     return NextResponse.json({

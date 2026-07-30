@@ -143,6 +143,7 @@ async function processMessage(payload: WebhookPayload) {
     return;
   }
 
+  const msgLower = messageText.toLowerCase();
   const isTiendaMsg = msgLower.includes("adquirí un producto") || msgLower.includes("adquirir un producto") || msgLower.includes("adquirió un producto");
   const isMensualidadMsg = msgLower.includes("referí a un nuevo miembro") || msgLower.includes("referi a un nuevo miembro");
 

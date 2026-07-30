@@ -40,10 +40,11 @@ export default function WalletBalanceTable({
   const [redeemNote, setRedeemNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Drawer historial
+  // Drawer/Modal historial
   const [historyCustomer, setHistoryCustomer] = useState<WalletBalance | null>(null);
   const [historyTxs, setHistoryTxs] = useState<WalletTx[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [dateFilter, setDateFilter] = useState("");
 
   const bgCard = isGym ? "bg-[#0f2040]/80 backdrop-blur-xl border border-white/15 rounded-2xl" : "bg-[#131110] border border-[#2a2520]";
   const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
@@ -60,19 +61,26 @@ export default function WalletBalanceTable({
   const openHistoryDrawer = async (customer: WalletBalance) => {
     setHistoryCustomer(customer);
     setLoadingHistory(true);
-
+    setDateFilter("");
     try {
-      const res = await fetch(`/api/wallet/transactions?customerPhone=${customer.customerPhone}&status=APPROVED`);
+      const res = await fetch(`/api/wallet/transactions?phone=${encodeURIComponent(customer.customerPhone)}`);
       if (res.ok) {
         const data = await res.json();
         setHistoryTxs(data);
       }
     } catch (e) {
-      console.error("Error cargando historial:", e);
+      console.error("Error cargando historial de wallet:", e);
     } finally {
       setLoadingHistory(false);
     }
   };
+
+  // Filtrar historial por fecha si hay filtro
+  const filteredHistoryTxs = historyTxs.filter((tx) => {
+    if (!dateFilter) return true;
+    const txDate = new Date(tx.createdAt).toISOString().split("T")[0];
+    return txDate === dateFilter;
+  });
 
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -355,11 +363,12 @@ export default function WalletBalanceTable({
         </div>
       )}
 
-      {/* DRAWER HISTORIAL */}
+      {/* DRAWER / MODAL HISTORIAL RESPONSIVO */}
       {historyCustomer && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
-          <div className={`${bgCard} w-full max-w-lg h-full p-6 space-y-6 overflow-y-auto border-l border-white/20`}>
-            <div className="flex justify-between items-center border-b border-white/10 pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center sm:justify-end p-2 sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+          <div className={`${bgCard} w-full max-w-lg h-full max-h-[92vh] sm:max-h-full p-4 sm:p-6 space-y-4 overflow-y-auto border border-white/20 shadow-2xl flex flex-col`}>
+            {/* Header */}
+            <div className="flex justify-between items-start border-b border-white/10 pb-3">
               <div>
                 <h3 className={`font-display text-xl ${textPri}`}>
                   Historial de Wallet
@@ -368,47 +377,93 @@ export default function WalletBalanceTable({
                   {historyCustomer.customerName} (+{historyCustomer.customerPhone})
                 </p>
               </div>
-              <button onClick={() => setHistoryCustomer(null)} className={`${textMut} hover:text-white text-xl`}>
+              <button onClick={() => setHistoryCustomer(null)} className={`${textMut} hover:text-white text-xl p-1`}>
                 ✕
               </button>
             </div>
 
-            {loadingHistory ? (
-              <p className={`font-mono text-xs ${textMut}`}>Cargando historial...</p>
-            ) : historyTxs.length === 0 ? (
-              <p className={`font-mono text-xs ${textMut} italic`}>No hay transacciones registradas.</p>
-            ) : (
-              <div className="space-y-3 font-mono text-xs">
-                {historyTxs.map((tx) => (
-                  <div key={tx.id} className={`p-4 border ${borderC} bg-white/5 rounded-xl space-y-1`}>
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold uppercase" style={{ color: tx.credit < 0 ? "#f87171" : "#34d399" }}>
-                        {tx.type === "REDEEM" ? "💸 CANJE REALIZADO" : tx.type === "TIENDA" ? "🛍️ COMPRA TIENDA" : "💪 COMISIÓN REFERIDO"}
-                      </span>
-                      <span className="font-display text-lg font-bold" style={{ color: tx.credit < 0 ? "#f87171" : "#34d399" }}>
-                        {tx.credit > 0 ? `+$${tx.credit.toFixed(2)}` : `-$${Math.abs(tx.credit).toFixed(2)}`}
-                      </span>
+            {/* Filtro por fecha */}
+            <div className="flex items-center justify-between gap-2 bg-white/5 border border-white/10 p-2.5 rounded-xl">
+              <label className={`font-mono text-[10px] uppercase ${textMut} shrink-0`}>📅 Filtrar por Día:</label>
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className={`border px-2 py-1 font-mono text-xs rounded-lg focus:outline-none ${
+                  isGym
+                    ? "bg-[#0a1628] border-white/15 text-white focus:border-blue-400"
+                    : "bg-[#0a0807] border-[#2a2520] text-[#f3ece1]"
+                }`}
+              />
+              {dateFilter && (
+                <button
+                  onClick={() => setDateFilter("")}
+                  className={`font-mono text-[10px] ${textMut} hover:text-white underline`}
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+
+            {/* Contenido */}
+            <div className="flex-1 overflow-y-auto space-y-3">
+              {loadingHistory ? (
+                <p className={`font-mono text-xs ${textMut} text-center py-6`}>Cargando historial...</p>
+              ) : filteredHistoryTxs.length === 0 ? (
+                <p className={`font-mono text-xs ${textMut} italic text-center py-6`}>
+                  {dateFilter
+                    ? `No hay transacciones para la fecha seleccionada (${dateFilter}).`
+                    : "No hay transacciones registradas."}
+                </p>
+              ) : (
+                <div className="space-y-3 font-mono text-xs">
+                  {filteredHistoryTxs.map((tx) => (
+                    <div key={tx.id} className={`p-3.5 border ${borderC} bg-white/5 rounded-xl space-y-1.5`}>
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold uppercase text-[10px]" style={{ color: tx.credit < 0 ? "#f87171" : "#34d399" }}>
+                          {tx.type === "REDEEM" ? "💸 CANJE REALIZADO" : tx.type === "TIENDA" ? "🛍️ COMPRA TIENDA" : "💪 COMISIÓN REFERIDO"}
+                        </span>
+                        <span className="font-display text-lg font-bold" style={{ color: tx.credit < 0 ? "#f87171" : "#34d399" }}>
+                          {tx.credit > 0 ? `+$${tx.credit.toFixed(2)}` : `-$${Math.abs(tx.credit).toFixed(2)}`}
+                        </span>
+                      </div>
+
+                      {tx.type === "TIENDA" && (
+                        <p className={textSec}>Producto: <strong className={textPri}>{tx.productName}</strong> (${tx.amount.toFixed(2)} al {tx.percentage}%)</p>
+                      )}
+
+                      {tx.type === "MENSUALIDAD" && (
+                        <p className={textSec}>Plan: <strong className={textPri}>{tx.planName}</strong> (${tx.amount.toFixed(2)} al {tx.percentage}%)</p>
+                      )}
+
+                      {tx.adminNote && (
+                        <p className={`${textMut} italic text-[10px]`}>Nota: &quot;{tx.adminNote}&quot;</p>
+                      )}
+
+                      <p className={`${textMut} text-[9px] pt-1 border-t border-white/5`}>
+                        {new Date(tx.createdAt).toLocaleString("es-EC", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
                     </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-                    {tx.type === "TIENDA" && (
-                      <p className={textSec}>Producto: <strong className={textPri}>{tx.productName}</strong> (${tx.amount.toFixed(2)} al {tx.percentage}%)</p>
-                    )}
-
-                    {tx.type === "MENSUALIDAD" && (
-                      <p className={textSec}>Plan: <strong className={textPri}>{tx.planName}</strong> (${tx.amount.toFixed(2)} al {tx.percentage}%)</p>
-                    )}
-
-                    {tx.adminNote && (
-                      <p className={`${textMut} italic text-[10px]`}>Nota: &quot;{tx.adminNote}&quot;</p>
-                    )}
-
-                    <p className={`${textMut} text-[9px] pt-1`}>
-                      {new Date(tx.createdAt).toLocaleString("es-EC")}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Footer */}
+            <div className="border-t border-white/10 pt-3 flex justify-end">
+              <button
+                onClick={() => setHistoryCustomer(null)}
+                className="w-full py-2 font-mono text-xs uppercase border border-white/15 text-slate-300 hover:bg-white/10 rounded-xl"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

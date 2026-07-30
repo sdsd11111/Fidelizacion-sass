@@ -90,8 +90,64 @@ async function processMessage(payload: WebhookPayload) {
   const currentCode = barbershop.currentBoxCode?.toUpperCase() || "";
   const isCheckInMessage = currentCode.length > 0 && messageText.toUpperCase().includes(currentCode);
 
-  // --- FLUJO WALLET (GIMNASIO) ---
+  // --- FLUJO WALLET (CONSULTA DE SALDO) ---
   const msgLower = messageText.toLowerCase();
+  const isWalletBalanceQuery =
+    msgLower.includes("wallet") ||
+    msgLower.includes("cuanto tengo") ||
+    msgLower.includes("cuánto tengo") ||
+    msgLower.includes("mi saldo") ||
+    msgLower.includes("saldo de mi");
+
+  if (isWalletBalanceQuery) {
+    const pushName = (payload.data as any)?.pushName || customer?.name || "Cliente";
+
+    // Calcular el saldo total acumulado del cliente en este gimnasio/barbería
+    const approvedTxs = await prisma.walletTransaction.findMany({
+      where: {
+        barbershopId: barbershop.id,
+        customerPhone: whatsapp,
+        status: "APPROVED",
+      },
+    });
+
+    const totalBalance = approvedTxs.reduce((sum, item) => sum + item.credit, 0);
+    const txCount = approvedTxs.length;
+
+    const isGym = barbershop.vertical === "GIMNASIO";
+    const emoji = isGym ? "💪" : "✂️";
+
+    let balanceMessage = "";
+    if (totalBalance > 0) {
+      balanceMessage = [
+        `💰 *Tu Saldo de Wallet en ${barbershop.name}* ${emoji}`,
+        ``,
+        `Hola ${pushName},`,
+        `Tu saldo acumulado actual es: *$${totalBalance.toFixed(2)}*`,
+        `Operaciones aprobadas: ${txCount}`,
+        ``,
+        `¡Puedes canjear tu saldo acumulado en tu próxima visita o compra! 🔥`,
+      ].join("\n");
+    } else {
+      balanceMessage = [
+        `💰 *Tu Saldo de Wallet en ${barbershop.name}* ${emoji}`,
+        ``,
+        `Hola ${pushName},`,
+        `Actualmente tienes *$0.00* acumulados en tu Wallet.`,
+        ``,
+        `¡Escanea nuestros códigos QR de Tienda o Referidos para empezar a acumular saldo! ${emoji}`,
+      ].join("\n");
+    }
+
+    await sendWhatsAppMessage({
+      instance: barbershop.evolutionInstance,
+      apiKey: barbershop.evolutionApiKey,
+      to: whatsapp,
+      message: balanceMessage,
+    });
+    return;
+  }
+
   const isTiendaMsg = msgLower.includes("adquirí un producto") || msgLower.includes("adquirir un producto") || msgLower.includes("adquirió un producto");
   const isMensualidadMsg = msgLower.includes("referí a un nuevo miembro") || msgLower.includes("referi a un nuevo miembro");
 

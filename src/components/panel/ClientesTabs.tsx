@@ -451,7 +451,8 @@ function CustomerCard({
   );
 }
 
-function EmptyState({ tab }: { tab: string }) {
+function EmptyState({ tab, vertical = "BARBERIA" }: { tab: string; vertical?: string }) {
+  const isGym = vertical === "GIMNASIO";
   const messages: Record<string, { title: string; subtitle: string }> = {
     todos: {
       title: "Aún no hay clientes registrados",
@@ -468,10 +469,14 @@ function EmptyState({ tab }: { tab: string }) {
   };
   const msg = messages[tab] ?? messages.todos;
 
+  const bgCard = isGym ? "bg-[#0f2040]/80 border-white/15 rounded-2xl" : "bg-[#131110] border-[#2a2520]";
+  const textPri = isGym ? "text-slate-300" : "text-[#5c554c]";
+  const textMut = isGym ? "text-slate-400" : "text-[#5c554c]";
+
   return (
-    <div className="border border-[#2a2520] bg-[#131110] p-16 text-center">
-      <p className="font-display italic text-xl text-[#5c554c] mb-3">{msg.title}</p>
-      <p className="font-mono text-xs text-[#5c554c] tracking-wider max-w-sm mx-auto leading-relaxed">
+    <div className={`border ${bgCard} p-12 sm:p-16 text-center`}>
+      <p className={`font-display italic text-xl ${textPri} mb-3`}>{msg.title}</p>
+      <p className={`font-mono text-xs ${textMut} tracking-wider max-w-sm mx-auto leading-relaxed`}>
         {msg.subtitle}
       </p>
     </div>
@@ -562,7 +567,7 @@ export default function ClientesTabs({
 
       {/* Grid de tarjetas */}
       {filtered.length === 0 ? (
-        <EmptyState tab={activeTab} />
+        <EmptyState tab={activeTab} vertical={vertical} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((customer) => (

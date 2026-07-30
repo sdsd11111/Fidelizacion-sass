@@ -112,6 +112,14 @@ async function processMessage(payload: WebhookPayload) {
         },
       });
 
+      // Generar nuevo código de caja rotativo para actualizar los QRs en vivo
+      const { generateBoxCode } = await import("@/lib/boxcode");
+      const newCode = generateBoxCode();
+      await prisma.barbershop.update({
+        where: { id: barbershop.id },
+        data: { currentBoxCode: newCode },
+      });
+
       sendWhatsAppMessage({
         instance: barbershop.evolutionInstance,
         apiKey: barbershop.evolutionApiKey,
@@ -145,6 +153,14 @@ async function processMessage(payload: WebhookPayload) {
     }
 
     if (isMensualidadMsg) {
+      // Generar nuevo código de caja rotativo para actualizar los QRs en vivo
+      const { generateBoxCode } = await import("@/lib/boxcode");
+      const newCode = generateBoxCode();
+      await prisma.barbershop.update({
+        where: { id: barbershop.id },
+        data: { currentBoxCode: newCode },
+      });
+
       // Buscar planes configurados
       const walletConfig = await prisma.walletConfig.findUnique({
         where: { barbershopId: barbershop.id },

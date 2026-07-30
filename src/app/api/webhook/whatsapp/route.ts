@@ -90,14 +90,9 @@ async function processMessage(payload: WebhookPayload) {
   const currentCode = barbershop.currentBoxCode?.toUpperCase() || "";
   const isCheckInMessage = currentCode.length > 0 && messageText.toUpperCase().includes(currentCode);
 
-  // --- FLUJO WALLET (CONSULTA DE SALDO) ---
-  const msgLower = messageText.toLowerCase();
-  const isWalletBalanceQuery =
-    msgLower.includes("wallet") ||
-    msgLower.includes("cuanto tengo") ||
-    msgLower.includes("cuánto tengo") ||
-    msgLower.includes("mi saldo") ||
-    msgLower.includes("saldo de mi");
+  // --- FLUJO WALLET (CONSULTA DE SALDO EXCLUSIVO CON LA PALABRA "WALLET") ---
+  const msgTrimmedLower = messageText.trim().toLowerCase();
+  const isWalletBalanceQuery = msgTrimmedLower === "wallet" || msgTrimmedLower.includes("wallet");
 
   if (isWalletBalanceQuery) {
     const pushName = (payload.data as any)?.pushName || customer?.name || "Cliente";

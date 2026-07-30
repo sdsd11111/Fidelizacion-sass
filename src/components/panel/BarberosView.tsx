@@ -231,8 +231,8 @@ export default function BarberosView({
 
   return (
     <div className="space-y-6">
-      {/* QR General del Negocio */}
-      {selectedView === "general" && whatsappNumber && (
+      {/* QR General del Negocio (Solo para Barberías, oculto en Gimnasios) */}
+      {!isGym && selectedView === "general" && whatsappNumber && (
       <div className={`${bgCard} p-6 flex flex-col sm:flex-row items-center justify-between gap-6`}>
           <div className="space-y-2 text-center sm:text-left">
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: accent }}>

@@ -91,8 +91,12 @@ async function processMessage(payload: WebhookPayload) {
   const isCheckInMessage = currentCode.length > 0 && messageText.toUpperCase().includes(currentCode);
 
   // --- FLUJO WALLET (GIMNASIO) ---
-  const isTiendaMsg = messageText.toLowerCase().includes("adquirir un producto") || messageText.toLowerCase().includes("adquirió un producto");
-  const isMensualidadMsg = messageText.toLowerCase().includes("referí a un nuevo miembro") || messageText.toLowerCase().includes("referi a un nuevo miembro");
+  const msgLower = messageText.toLowerCase();
+  const isTiendaMsg = msgLower.includes("adquirí un producto") || msgLower.includes("adquirir un producto") || msgLower.includes("adquirió un producto");
+  const isMensualidadMsg = msgLower.includes("referí a un nuevo miembro") || msgLower.includes("referi a un nuevo miembro");
+
+  // Validar que el mensaje contenga el código de caja activo (seguridad anti-spam)
+  const msgContainsCode = currentCode.length > 0 && messageText.toUpperCase().includes(currentCode);
 
   if (isTiendaMsg || isMensualidadMsg) {
     const pushName = (payload.data as any)?.pushName || "Cliente";

@@ -95,15 +95,19 @@ export default function WalletConfigSection({
   };
 
   // QR URLs
-  const qrTiendaUrl = whatsappNumber
+  const qrTiendaUrl = whatsappNumber && currentBoxCode
     ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-        `https://wa.me/${whatsappNumber}?text=Hola,%20acabo%20de%20adquirir%20un%20producto`
+        `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+          `Hola, adquirí un producto mi codigo es ${currentBoxCode}`
+        )}`
       )}`
     : "";
 
-  const qrMensualidadUrl = whatsappNumber
+  const qrMensualidadUrl = whatsappNumber && currentBoxCode
     ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-        `https://wa.me/${whatsappNumber}?text=Hola,%20referí%20a%20un%20nuevo%20miembro`
+        `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+          `Hola, referí a un nuevo miembro mi codigo es ${currentBoxCode}`
+        )}`
       )}`
     : "";
 

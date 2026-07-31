@@ -15,19 +15,19 @@ const JWT_SECRET = new TextEncoder().encode(
  * Next.js expone este archivo en /manifest.json automáticamente.
  */
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
-  let vertical: "BARBERIA" | "GIMNASIO" = "BARBERIA";
+  let vertical: "BARBERIA" | "GIMNASIO" = "GIMNASIO";
 
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session")?.value;
     if (sessionCookie) {
       const { payload } = await jose.jwtVerify(sessionCookie, JWT_SECRET);
-      if (payload.vertical === "GIMNASIO") {
-        vertical = "GIMNASIO";
+      if (payload.vertical === "BARBERIA") {
+        vertical = "BARBERIA";
       }
     }
   } catch {
-    // Si el token es inválido o no se puede verificar, mantenemos BARBERIA por default.
+    // Si el token es inválido o no se puede verificar, mantenemos GIMNASIO por default.
   }
 
   if (vertical === "GIMNASIO") {

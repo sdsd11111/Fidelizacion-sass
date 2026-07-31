@@ -63,24 +63,24 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico" },
-      { url: "/logos/barberos_isotipo.png", type: "image/png" },
+      { url: "/logos/gymos_isotipo_192.png", type: "image/png" },
+      { url: "/logos/gymos_isotipo_512.png", type: "image/png" },
     ],
-    shortcut: "/favicon.ico",
-    apple: "/logos/barberos_isotipo.png",
+    shortcut: "/logos/gymos_isotipo_192.png",
+    apple: "/logos/gymos_isotipo_192.png",
   },
   openGraph: {
-    title: "BarberOS — Sistema Inteligente de Fidelización y Gestión para Barberías",
+    title: "GymOS — Sistema Inteligente de Fidelización y Gestión para Gimnasios",
     description:
-      "Aumenta la frecuencia de tus clientes y automatiza tu barbería por WhatsApp. Fidelización rápida, métricas en vivo y avisos automáticos.",
-    url: "https://barberosplus.com",
-    siteName: "BarberOS",
+      "Aumenta la retención de tus socios y automatiza tu gimnasio por WhatsApp. Fidelización rápida, métricas en vivo y avisos automáticos.",
+    url: "https://fidelizacion-sass.vercel.app",
+    siteName: "GymOS",
     images: [
       {
-        url: "https://barberosplus.com/logos/barberos_logo_concept_1.webp",
+        url: "/logos/gymos_logo.png",
         width: 1200,
         height: 630,
-        alt: "BarberOS - Software e Inteligencia para Barberías",
+        alt: "GymOS - Software e Inteligencia para Gimnasios",
       },
     ],
     locale: "es_EC",
@@ -88,10 +88,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BarberOS — Sistema Inteligente de Fidelización y Gestión para Barberías",
+    title: "GymOS — Sistema Inteligente de Fidelización y Gestión para Gimnasios",
     description:
-      "Aumenta la frecuencia de tus clientes y automatiza tu barbería por WhatsApp.",
-    images: ["https://barberosplus.com/logos/barberos_logo_concept_1.webp"],
+      "Aumenta la retención de tus socios y automatiza tu gimnasio por WhatsApp.",
+    images: ["/logos/gymos_logo.png"],
   },
 };
 

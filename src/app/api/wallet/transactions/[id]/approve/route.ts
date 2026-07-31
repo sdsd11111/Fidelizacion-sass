@@ -13,7 +13,7 @@ export async function POST(
 
   const { id } = await params;
   const body = await req.json();
-  const { amount, percentage, productName, adminNote } = body;
+  const { amount, percentage, productName, adminNote, creditOverride } = body;
 
   const tx = await prisma.walletTransaction.findUnique({
     where: { id },
@@ -31,8 +31,14 @@ export async function POST(
 
   if (tx.type === "TIENDA") {
     finalAmount = Number(amount) || 0;
-    finalPercentage = Number(percentage) || 0;
-    finalCredit = (finalAmount * finalPercentage) / 100;
+    // En tienda, el admin puede ingresar el monto directo (creditOverride) sin porcentaje
+    if (creditOverride !== undefined && creditOverride !== null && Number(creditOverride) >= 0) {
+      finalCredit = Number(creditOverride);
+      finalPercentage = 0;
+    } else {
+      finalPercentage = Number(percentage) || 0;
+      finalCredit = (finalAmount * finalPercentage) / 100;
+    }
     finalProductName = productName || tx.productName;
   } else if (tx.type === "MENSUALIDAD") {
     // Si la mensualidad ya venía con su crédito calculado en el bot

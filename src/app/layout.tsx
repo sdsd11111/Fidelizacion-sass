@@ -61,7 +61,6 @@ export const metadata: Metadata = {
   verification: {
     google: "S4YO9FbiTiBeFAGaOowZq0VlK1T-uhzQjbEIhWNTt9o",
   },
-  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: "/favicon.ico" },

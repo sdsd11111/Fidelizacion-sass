@@ -42,7 +42,9 @@ export default function WalletPendingList({
   // Campos modal de aprobación Tienda o Mensualidad
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState("");
-  const [percentage, setPercentage] = useState("10"); // Default 10%
+  const [percentage, setPercentage] = useState("0"); // Solo se usa para MENSUALIDAD
+  // Para TIENDA: monto directo en dólares que se acredita al cliente
+  const [storeCreditAmount, setStoreCreditAmount] = useState("");
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
 
   const [loading, setLoading] = useState(false);
@@ -58,7 +60,9 @@ export default function WalletPendingList({
     if (tx.type === "TIENDA") {
       setProductName(tx.productName || "");
       setPrice(tx.amount > 0 ? tx.amount.toString() : "");
-      setPercentage(tx.percentage > 0 ? tx.percentage.toString() : "10");
+      // Si la tx ya tiene un credit calculado, prellenar el campo de monto directo
+      setStoreCreditAmount(tx.credit > 0 ? tx.credit.toString() : "");
+      setPercentage("0");
     } else {
       const defaultPlan = plans[0];
       if (defaultPlan) {
@@ -69,6 +73,7 @@ export default function WalletPendingList({
         setPrice(tx.amount > 0 ? tx.amount.toString() : "0");
         setPercentage(tx.percentage > 0 ? tx.percentage.toString() : "0");
       }
+      setStoreCreditAmount("");
     }
   };
 
@@ -80,7 +85,7 @@ export default function WalletPendingList({
       let bodyData: any = {};
       if (selectedTx.type === "TIENDA") {
         const parsedPrice = parseFloat(price);
-        const parsedPct = parseFloat(percentage);
+        const parsedCredit = parseFloat(storeCreditAmount);
 
         if (isNaN(parsedPrice) || parsedPrice <= 0) {
           alert("Por favor ingresa un precio válido del producto.");
@@ -88,10 +93,19 @@ export default function WalletPendingList({
           return;
         }
 
+        if (isNaN(parsedCredit) || parsedCredit < 0) {
+          alert("Por favor ingresa el monto en dólares que se acreditará al cliente.");
+          setLoading(false);
+          return;
+        }
+
+        // En tienda, el admin ingresa directamente el monto a acreditar (no porcentaje)
         bodyData = {
           productName: productName.trim() || "Producto de Tienda",
           amount: parsedPrice,
-          percentage: parsedPct,
+          // Enviamos el monto directo como "creditOverride" para que el backend lo respete
+          creditOverride: parsedCredit,
+          percentage: 0,
         };
       } else {
         const parsedPrice = parseFloat(price);
@@ -141,6 +155,10 @@ export default function WalletPendingList({
       ? ((parseFloat(price) * parseFloat(percentage)) / 100).toFixed(2)
       : "0.00";
 
+  // Para TIENDA, el monto a acreditar es lo que el admin escribe directamente.
+  const tiendaCreditDisplay =
+    parseFloat(storeCreditAmount || "0").toFixed(2);
+
   return (
     <div className="space-y-4">
       {transactions.length === 0 ? (
@@ -189,7 +207,7 @@ export default function WalletPendingList({
 
               {tx.type === "TIENDA" && (
                 <div className={`p-3 border ${borderC} bg-white/5 rounded-xl font-mono text-xs ${textMut}`}>
-                  ℹ️ Pendiente de ingresar precio del objeto y asignar el porcentaje.
+                  ℹ️ Pendiente de ingresar precio del producto y el monto en dólares que se acreditará al cliente.
                 </div>
               )}
 
@@ -245,7 +263,7 @@ export default function WalletPendingList({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className={`font-mono text-[10px] uppercase ${textMut} block mb-1`}>Precio del Objeto ($)</label>
+                    <label className={`font-mono text-[10px] uppercase ${textMut} block mb-1`}>Precio del Producto ($)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -257,22 +275,22 @@ export default function WalletPendingList({
                   </div>
 
                   <div>
-                    <label className={`font-mono text-[10px] uppercase ${textMut} block mb-1`}>% Crédito Wallet</label>
+                    <label className={`font-mono text-[10px] uppercase ${textMut} block mb-1`}>Monto a Acreditar ($)</label>
                     <input
                       type="number"
-                      step="0.1"
-                      placeholder="Ej: 10"
-                      value={percentage}
-                      onChange={(e) => setPercentage(e.target.value)}
+                      step="0.01"
+                      placeholder="Ej: 5.00"
+                      value={storeCreditAmount}
+                      onChange={(e) => setStoreCreditAmount(e.target.value)}
                       className="w-full bg-[#0a1628] border border-white/15 text-white px-3 py-2 rounded-xl font-mono text-xs focus:outline-none focus:border-blue-400"
                     />
                   </div>
                 </div>
 
                 <div className="p-3 bg-blue-950/40 border border-blue-800/40 rounded-xl text-center">
-                  <span className="font-mono text-xs text-slate-300">Se acreditará en dólares:</span>
+                  <span className="font-mono text-xs text-slate-300">Se acreditará al cliente:</span>
                   <p className="font-display text-2xl font-bold text-emerald-400">
-                    +${calculatedCredit}
+                    +${tiendaCreditDisplay}
                   </p>
                 </div>
               </div>

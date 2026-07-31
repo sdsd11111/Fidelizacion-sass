@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Fondo slate-900 con esquinas redondeadas (máscara PWA) -->
+  <rect width="512" height="512" rx="96" ry="96" fill="#111827"/>
+
+  <!-- Sombra/glow sutil detrás de la pesa -->
+  <ellipse cx="256" cy="270" rx="180" ry="32" fill="#3b82f6" opacity="0.18"/>
+
+  <!-- Pesas externas (izquierda) -->
+  <rect x="56" y="172" width="80" height="168" rx="22" ry="22" fill="#3b82f6"/>
+  <rect x="56" y="172" width="80" height="168" rx="22" ry="22" fill="url(#shineL)"/>
+
+  <!-- Peso interno izquierdo -->
+  <rect x="148" y="208" width="36" height="96" rx="10" ry="10" fill="#60a5fa"/>
+
+  <!-- Barra central -->
+  <rect x="184" y="244" width="144" height="32" rx="8" ry="8" fill="#3b82f6"/>
+
+  <!-- Peso interno derecho -->
+  <rect x="328" y="208" width="36" height="96" rx="10" ry="10" fill="#60a5fa"/>
+
+  <!-- Pesas externas (derecha) -->
+  <rect x="376" y="172" width="80" height="168" rx="22" ry="22" fill="#3b82f6"/>
+  <rect x="376" y="172" width="80" height="168" rx="22" ry="22" fill="url(#shineR)"/>
+
+  <!-- Rayo/acento en el centro (energía) -->
+  <path d="M 268 214 L 244 264 L 260 264 L 252 300 L 276 250 L 260 250 Z"
+        fill="#fbbf24" opacity="0.95"/>
+
+  <!-- Highlight superior sutil en las pesas -->
+  <rect x="64" y="180" width="64" height="6" rx="3" fill="#ffffff" opacity="0.25"/>
+  <rect x="384" y="180" width="64" height="6" rx="3" fill="#ffffff" opacity="0.25"/>
+
+  <defs>
+    <linearGradient id="shineL" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.0"/>
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0"/>
+    </linearGradient>
+    <linearGradient id="shineR" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.0"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0"/>
+    </linearGradient>
+  </defs>
+</svg>

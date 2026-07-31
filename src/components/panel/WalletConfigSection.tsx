@@ -145,7 +145,7 @@ export default function WalletConfigSection({
               />
             </div>
             <div className="space-y-2 text-center sm:text-left">
-              <DownloadQRButton qrUrl={qrTiendaUrl} barbershopName="Tienda - Gym" />
+              <DownloadQRButton qrUrl={qrTiendaUrl} barbershopName="Tienda" vertical={isGym ? "GIMNASIO" : "BARBERIA"} />
               <p className={`font-mono text-[10px] ${textMut}`}>
                 Apruebas en Wallet ingresando el precio y el % asignado.
               </p>
@@ -175,7 +175,7 @@ export default function WalletConfigSection({
               />
             </div>
             <div className="space-y-2 text-center sm:text-left">
-              <DownloadQRButton qrUrl={qrMensualidadUrl} barbershopName="Referidos - Gym" />
+              <DownloadQRButton qrUrl={qrMensualidadUrl} barbershopName="Referidos" vertical={isGym ? "GIMNASIO" : "BARBERIA"} />
               <p className={`font-mono text-[10px] ${textMut}`}>
                 El sistema aplicará la comisión configurada abajo.
               </p>
@@ -205,7 +205,7 @@ export default function WalletConfigSection({
               />
             </div>
             <div className="space-y-2 text-center sm:text-left">
-              <DownloadQRButton qrUrl={qrGeneralEvaluacionUrl} barbershopName="Evaluacion General - Gym" />
+              <DownloadQRButton qrUrl={qrGeneralEvaluacionUrl} barbershopName="Evaluacion General" vertical={isGym ? "GIMNASIO" : "BARBERIA"} />
               <p className={`font-mono text-[10px] ${textMut}`}>
                 Auto-aprueba e invita a calificar de 1 a 5 estrellas sin espera.
               </p>

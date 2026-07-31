@@ -258,7 +258,11 @@ export default function BarberosView({
                 }}
               />
             </div>
-            <DownloadQRButton qrUrl={generalQrUrl} barbershopName={isGym ? "Gimnasio General" : "Barbería General"} />
+            <DownloadQRButton
+              qrUrl={generalQrUrl}
+              barbershopName={isGym ? "Gimnasio General" : "Barbería General"}
+              vertical={vertical === "GIMNASIO" ? "GIMNASIO" : "BARBERIA"}
+            />
           </div>
         </div>
       )}
@@ -385,7 +389,11 @@ export default function BarberosView({
                             }}
                           />
                         </div>
-                        <DownloadQRButton qrUrl={qrUrl} barbershopName={selectedStaff.name} />
+                        <DownloadQRButton
+                          qrUrl={qrUrl}
+                          barbershopName={selectedStaff.name}
+                          vertical={vertical === "GIMNASIO" ? "GIMNASIO" : "BARBERIA"}
+                        />
                       </>
                     );
                   })()}

@@ -37,7 +37,7 @@ export default function AdminDashboard() {
   const [ownerPhone, setOwnerPhone] = useState("");
   const [salesAgent, setSalesAgent] = useState("");
   const [planType, setPlanType] = useState<"PRO" | "PREMIUM">("PRO");
-  const [vertical, setVertical] = useState<"BARBERIA" | "GIMNASIO">("BARBERIA");
+  const [vertical, setVertical] = useState<"BARBERIA" | "GIMNASIO">("GIMNASIO");
 
   // Estado para la barbería en edición
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -50,7 +50,7 @@ export default function AdminDashboard() {
   // Estado para tab de vendedores
   const [activeTab, setActiveTab] = useState<"barbershops" | "vendedores">("barbershops");
   // Filtro de vertical dentro del tab de negocios: BARBERIA | GIMNASIO | ALL
-  const [verticalFilter, setVerticalFilter] = useState<"BARBERIA" | "GIMNASIO" | "ALL">("ALL");
+  const [verticalFilter, setVerticalFilter] = useState<"BARBERIA" | "GIMNASIO" | "ALL">("GIMNASIO");
   const [vendedores, setVendedores] = useState<any[]>([]);
   const [showVendedorModal, setShowVendedorModal] = useState(false);
   const [editingVendedor, setEditingVendedor] = useState<any>(null);
@@ -328,14 +328,15 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <main className="min-h-screen bg-[#0a0807] text-[#f3ece1] flex items-center justify-center p-6">
-        <div className="w-full max-w-md p-10 bg-[#131110] border border-[#2a2520]">
-          <h2 className="font-display text-3xl font-light mb-8 text-[#d97644] text-center">
-            SuperAdmin BarberOS
+      <main className="min-h-screen bg-[#111827] text-[#e2e8f0] flex items-center justify-center p-6">
+        <div className="w-full max-w-md p-10 bg-[#1e2d4a] border border-[#2d4a7a] rounded-2xl">
+          <h2 className="font-display text-3xl font-light mb-2 text-[#3b82f6] text-center">
+            SuperAdmin
           </h2>
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#64748b] text-center mb-8">GymOS · Panel Maestro</p>
           <form onSubmit={handleLoginSubmit} className="space-y-6">
             <div>
-              <label className="block font-mono text-xs tracking-[0.2em] uppercase text-[#5c554c] mb-2">
+              <label className="block font-mono text-xs tracking-[0.2em] uppercase text-[#64748b] mb-2">
                 ADMIN SECRET KEY
               </label>
               <input
@@ -343,13 +344,13 @@ export default function AdminDashboard() {
                 value={adminSecret}
                 onChange={(e) => setAdminSecret(e.target.value)}
                 placeholder="Ingresa la clave maestra"
-                className="w-full px-4 py-3 font-mono text-sm bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                className="w-full px-4 py-3 font-mono text-sm bg-[#111827] border border-[#2d4a7a] text-[#e2e8f0] focus:outline-none focus:border-[#3b82f6] rounded-lg"
               />
             </div>
-            {error && <p className="font-display italic text-xs text-[#d97644]">{error}</p>}
+            {error && <p className="font-display italic text-xs text-[#f87171]">{error}</p>}
             <button
               type="submit"
-              className="w-full py-3 font-mono text-xs tracking-[0.2em] uppercase text-[#0a0807] bg-[#d97644] hover:bg-[#e8854f] transition-colors"
+              className="w-full py-3 font-mono text-xs tracking-[0.2em] uppercase text-white bg-[#3b82f6] hover:bg-[#60a5fa] transition-colors rounded-lg font-bold"
             >
               Autenticar Panel
             </button>
@@ -360,34 +361,34 @@ export default function AdminDashboard() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0807] text-[#f3ece1] p-10">
+    <main className="min-h-screen bg-[#111827] text-[#e2e8f0] p-6 sm:p-10">
       <div className="max-w-7xl mx-auto space-y-12">
-        <header className="flex justify-between items-end border-b border-[#2a2520] pb-6">
+        <header className="flex flex-col sm:flex-row justify-between sm:items-end border-b border-[#2d4a7a]/50 pb-6 gap-4">
           <div>
-            <span className="font-mono text-xs tracking-[0.3em] uppercase text-[#5c554c] block mb-2">
+            <span className="font-mono text-xs tracking-[0.3em] uppercase text-[#3b82f6] block mb-2">
               Panel Maestro
             </span>
-            <h1 className="font-display text-5xl font-light">SuperAdmin</h1>
+            <h1 className="font-display text-5xl font-light text-white">SuperAdmin</h1>
           </div>
           <div className="flex items-center gap-4">
             {/* Tabs */}
-            <div className="flex border border-[#2a2520]">
+            <div className="flex border border-[#2d4a7a] rounded-lg overflow-hidden">
               <button
                 onClick={() => setActiveTab("barbershops")}
                 className={`px-4 py-2 font-mono text-xs tracking-wider uppercase transition-colors ${
                   activeTab === "barbershops"
-                    ? "bg-[#d97644] text-[#0a0807]"
-                    : "text-[#5c554c] hover:text-[#f3ece1]"
+                    ? "bg-[#3b82f6] text-white font-bold"
+                    : "text-[#64748b] hover:text-[#e2e8f0]"
                 }`}
               >
                 Negocios
               </button>
               <button
                 onClick={() => setActiveTab("vendedores")}
-                className={`px-4 py-2 font-mono text-xs tracking-wider uppercase transition-colors border-l border-[#2a2520] ${
+                className={`px-4 py-2 font-mono text-xs tracking-wider uppercase transition-colors border-l border-[#2d4a7a] ${
                   activeTab === "vendedores"
-                    ? "bg-[#d97644] text-[#0a0807]"
-                    : "text-[#5c554c] hover:text-[#f3ece1]"
+                    ? "bg-[#3b82f6] text-white font-bold"
+                    : "text-[#64748b] hover:text-[#e2e8f0]"
                 }`}
               >
                 Vendedores
@@ -399,7 +400,7 @@ export default function AdminDashboard() {
               setIsAuthenticated(false);
               setAdminSecret("");
             }}
-            className="font-mono text-xs tracking-[0.2em] uppercase text-[#5c554c] hover:text-[#d97644] transition-colors"
+            className="font-mono text-xs tracking-[0.2em] uppercase text-[#64748b] hover:text-[#3b82f6] transition-colors"
           >
             Cerrar Sesión
           </button>
@@ -411,8 +412,14 @@ export default function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Formulario de Onboarding */}
-          <div className="lg:col-span-1 bg-[#131110] border border-[#2a2520] p-8 space-y-6">
-            <h3 className="font-display text-2xl font-light text-[#d97644]">
+          <div className={`lg:col-span-1 p-8 space-y-6 rounded-2xl border ${
+            vertical === "GIMNASIO"
+              ? "bg-[#1e2d4a] border-[#2d4a7a]"
+              : "bg-[#131110] border-[#2a2520]"
+          }`}>
+            <h3 className={`font-display text-2xl font-light ${
+              vertical === "GIMNASIO" ? "text-[#3b82f6]" : "text-[#d97644]"
+            }`}>
               {vertical === "GIMNASIO" ? "Nuevo Gimnasio (Onboarding)" : "Nueva Barbería (Onboarding)"}
             </h3>
 
@@ -439,27 +446,45 @@ export default function AdminDashboard() {
                 <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
                   Vertical del Negocio
                 </label>
-                <select
-                  value={vertical}
-                  onChange={(e) => setVertical(e.target.value as "BARBERIA" | "GIMNASIO")}
-                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
-                >
-                  <option value="BARBERIA">💈 Barbería</option>
-                  <option value="GIMNASIO">🏋️ Gimnasio</option>
-                </select>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setVertical("BARBERIA")}
+                    className={`py-2 px-3 font-mono text-xs uppercase border rounded-lg transition-all flex items-center justify-center gap-2 ${
+                      vertical === "BARBERIA"
+                        ? "bg-[#d97644]/20 border-[#d97644] text-[#d97644] font-bold"
+                        : "bg-[#0a0807] border-[#2a2520] text-[#5c554c] hover:text-[#f3ece1]"
+                    }`}
+                  >
+                    <span>💈</span> Barbería
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVertical("GIMNASIO")}
+                    className={`py-2 px-3 font-mono text-xs uppercase border rounded-lg transition-all flex items-center justify-center gap-2 ${
+                      vertical === "GIMNASIO"
+                        ? "bg-[#3b82f6]/20 border-[#3b82f6] text-[#3b82f6] font-bold"
+                        : "bg-[#0a0807] border-[#2a2520] text-[#5c554c] hover:text-[#f3ece1]"
+                    }`}
+                  >
+                    <span>🏋️</span> Gimnasio
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
-                  Nombre de la {vertical === "GIMNASIO" ? "Gimnasio" : "Barbería"}
+                  Nombre de{vertical === "GIMNASIO" ? "l Gimnasio" : " la Barbería"}
                 </label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Ej. Barbería El Elegante"
-                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                  placeholder={vertical === "GIMNASIO" ? "Ej. Iron Gym Fitness" : "Ej. Barbería El Elegante"}
+                  className={`w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border text-[#f3ece1] focus:outline-none transition-colors ${
+                    vertical === "GIMNASIO" ? "border-white/15 focus:border-[#3b82f6]" : "border-[#2a2520] focus:border-[#d97644]"
+                  }`}
                 />
               </div>
 
@@ -534,7 +559,11 @@ export default function AdminDashboard() {
 
               <button
                 type="submit"
-                className="w-full py-3 font-mono text-xs tracking-[0.2em] uppercase text-[#0a0807] bg-[#d97644] hover:bg-[#e8854f] transition-colors pt-2"
+                className={`w-full py-3 font-mono text-xs tracking-[0.2em] uppercase transition-colors pt-2 font-bold ${
+                  vertical === "GIMNASIO"
+                    ? "bg-[#3b82f6] hover:bg-[#60a5fa] text-white"
+                    : "bg-[#d97644] hover:bg-[#e8854f] text-[#0a0807]"
+                }`}
               >
                 {vertical === "GIMNASIO" ? "Crear Gimnasio" : "Crear Barbería"}
               </button>
@@ -542,21 +571,21 @@ export default function AdminDashboard() {
           </div>
 
           {/* Listado y Gestión */}
-          <div className="lg:col-span-2 bg-[#131110] border border-[#2a2520] p-8 space-y-6">
+          <div className="lg:col-span-2 bg-[#1e2d4a] border border-[#2d4a7a] p-8 space-y-6 rounded-2xl">
             <div className="flex justify-between items-center flex-wrap gap-4">
-              <h3 className="font-display text-2xl font-light text-[#f3ece1]">
+              <h3 className="font-display text-2xl font-light text-white">
                 {verticalFilter === "GIMNASIO"
                   ? `Gimnasios Registrados (${barbershops.filter((s) => (s.vertical || "BARBERIA") === "GIMNASIO").length})`
                   : verticalFilter === "BARBERIA"
                   ? `Barberías Registradas (${barbershops.filter((s) => (s.vertical || "BARBERIA") === "BARBERIA").length})`
                   : `Negocios Registrados (${barbershops.length})`}
               </h3>
-              <div className="flex border border-[#2a2520]">
+              <div className="flex border border-[#2a2520] rounded-lg overflow-hidden">
                 <button
                   onClick={() => setVerticalFilter("BARBERIA")}
                   className={`px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-colors ${
                     verticalFilter === "BARBERIA"
-                      ? "bg-[#d97644] text-[#0a0807]"
+                      ? "bg-[#d97644] text-[#0a0807] font-bold"
                       : "text-[#5c554c] hover:text-[#f3ece1]"
                   }`}
                 >
@@ -566,7 +595,7 @@ export default function AdminDashboard() {
                   onClick={() => setVerticalFilter("GIMNASIO")}
                   className={`px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-colors border-l border-[#2a2520] ${
                     verticalFilter === "GIMNASIO"
-                      ? "bg-[#d97644] text-[#0a0807]"
+                      ? "bg-[#3b82f6] text-white font-bold"
                       : "text-[#5c554c] hover:text-[#f3ece1]"
                   }`}
                 >
@@ -574,10 +603,10 @@ export default function AdminDashboard() {
                 </button>
                 <button
                   onClick={() => setVerticalFilter("ALL")}
-                  className={`px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-colors border-l border-[#2a2520] ${
+                  className={`px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-colors border-l border-[#2d4a7a] ${
                     verticalFilter === "ALL"
-                      ? "bg-[#d97644] text-[#0a0807]"
-                      : "text-[#5c554c] hover:text-[#f3ece1]"
+                      ? "bg-[#94a3b8] text-[#111827] font-bold"
+                      : "text-[#64748b] hover:text-[#e2e8f0]"
                   }`}
                 >
                   Todos
@@ -585,14 +614,14 @@ export default function AdminDashboard() {
               </div>
             </div>
             {barbershops.filter((s) => verticalFilter === "ALL" || (s.vertical || "BARBERIA") === verticalFilter).length === 0 ? (
-              <p className="font-mono text-xs text-[#5c554c]">
+              <p className="font-mono text-xs text-[#64748b]">
                 No hay {verticalFilter === "GIMNASIO" ? "gimnasios" : verticalFilter === "BARBERIA" ? "barberías" : "negocios"} registrados aún.
               </p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left font-mono text-xs text-[#a89e90]">
+                <table className="w-full text-left font-mono text-xs text-[#94a3b8]">
                   <thead>
-                    <tr className="border-b border-[#2a2520] text-[#5c554c] uppercase">
+                    <tr className="border-b border-[#2d4a7a] text-[#64748b] uppercase">
                       <th className="py-3">Negocio</th>
                       <th className="py-3">WhatsApp</th>
                       <th className="py-3">Código PIN</th>
@@ -606,7 +635,7 @@ export default function AdminDashboard() {
                     {barbershops
                       .filter((s) => verticalFilter === "ALL" || (s.vertical || "BARBERIA") === verticalFilter)
                       .map((shop) => (
-                      <tr key={shop.id} className="border-b border-[#1c1917] hover:bg-[#0a0807]">
+                      <tr key={shop.id} className="border-b border-[#2d4a7a]/30 hover:bg-[#111827]/50 transition-colors">
                         {editingId === shop.id ? (
                           <>
                             {/* Formulario Inline de Edición */}
@@ -681,8 +710,14 @@ export default function AdminDashboard() {
                             {/* Fila de Lectura Normal */}
                             <td className="py-4 font-display text-base text-[#f3ece1] font-light">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-xs" aria-hidden>
-                                  {(shop.vertical || "BARBERIA") === "GIMNASIO" ? "🏋️" : "💈"}
+                                <span
+                                  className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider ${
+                                    (shop.vertical || "BARBERIA") === "GIMNASIO"
+                                      ? "bg-[#3b82f6]/20 border border-[#3b82f6]/40 text-[#60a5fa]"
+                                      : "bg-[#d97644]/20 border border-[#d97644]/40 text-[#d97644]"
+                                  }`}
+                                >
+                                  {(shop.vertical || "BARBERIA") === "GIMNASIO" ? "🏋️ GIMNASIO" : "💈 BARBERÍA"}
                                 </span>
                                 <span>{shop.name}</span>
                               </div>
@@ -829,21 +864,21 @@ export default function AdminDashboard() {
                 setVendedorForm({ nombre: "", celular: "", negocio: "", direccion: "" });
                 setShowVendedorModal(true);
               }}
-              className="px-4 py-2 font-mono text-xs tracking-wider uppercase bg-[#d97644] text-[#0a0807] hover:bg-[#e8854f] transition-colors"
+              className="px-4 py-2 font-mono text-xs tracking-wider uppercase bg-[#3b82f6] text-white hover:bg-[#60a5fa] transition-colors rounded-lg font-bold"
             >
               + Nuevo Vendedor
             </button>
           </div>
 
           {vendedores.length === 0 ? (
-            <p className="font-mono text-xs text-[#5c554c] text-center py-12">
+            <p className="font-mono text-xs text-[#64748b] text-center py-12">
               No hay vendedores registrados.
             </p>
           ) : (
-            <div className="bg-[#131110] border border-[#2a2520] overflow-hidden">
-              <table className="w-full text-left font-mono text-xs text-[#a89e90]">
+            <div className="bg-[#1e2d4a] border border-[#2d4a7a] overflow-hidden rounded-2xl">
+              <table className="w-full text-left font-mono text-xs text-[#94a3b8]">
                 <thead>
-                  <tr className="border-b border-[#2a2520] text-[#5c554c] uppercase">
+                  <tr className="border-b border-[#2d4a7a] text-[#64748b] uppercase">
                     <th className="py-3 px-4">Nombre</th>
                     <th className="py-3 px-4">Celular</th>
                     <th className="py-3 px-4">Negocio</th>
@@ -856,13 +891,13 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {vendedores.map((v) => (
-                    <tr key={v.id} className="border-b border-[#1c1917] hover:bg-[#0a0807]">
-                      <td className="py-3 px-4 text-[#f3ece1]">{v.nombre}</td>
+                    <tr key={v.id} className="border-b border-[#2d4a7a]/30 hover:bg-[#111827]/50 transition-colors">
+                      <td className="py-3 px-4 text-white">{v.nombre}</td>
                       <td className="py-3 px-4">+{v.celular}</td>
                       <td className="py-3 px-4">{v.negocio}</td>
                       <td className="py-3 px-4 text-[10px]">{v.direccion}</td>
                       <td className="py-3 px-4">
-                        <span className="px-2 py-0.5 bg-[#2a2520] border border-[#3a3530] rounded text-[#d97644] font-bold tracking-wider">
+                        <span className="px-2 py-0.5 bg-[#3b82f6]/20 border border-[#3b82f6]/40 rounded text-[#60a5fa] font-bold tracking-wider">
                           {v.codigoUnico}
                         </span>
                       </td>
@@ -879,7 +914,7 @@ export default function AdminDashboard() {
                       <td className="py-3 px-4 text-right space-x-1">
                         <button
                           onClick={() => window.open(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`https://wa.me/593963425323?text=Hola,%20me%20interesa%20el%20sistema,%20vengo%20de%20parte%20de%20${v.codigoUnico}`)}`, "_blank")}
-                          className="px-2 py-1 bg-[#2a2520] text-[#a89e90] hover:text-[#f3ece1] border border-[#2a2520] rounded"
+                          className="px-2 py-1 bg-[#2d4a7a]/50 text-[#94a3b8] hover:text-white border border-[#2d4a7a] rounded"
                           title="Ver QR"
                         >
                           QR
@@ -913,62 +948,62 @@ export default function AdminDashboard() {
         {/* Modal Crear Vendedor */}
         {showVendedorModal && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-6">
-            <div className="w-full max-w-md bg-[#131110] border border-[#2a2520] p-8">
-              <h3 className="font-display text-2xl font-light text-[#d97644] mb-6">
+            <div className="w-full max-w-md bg-[#1e2d4a] border border-[#2d4a7a] p-8 rounded-2xl">
+              <h3 className="font-display text-2xl font-light text-[#3b82f6] mb-6">
                 Nuevo Vendedor
               </h3>
               <form onSubmit={handleCreateVendedor} className="space-y-4">
                 <div>
-                  <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">Nombre</label>
+                  <label className="block font-mono text-[10px] tracking-wider uppercase text-[#64748b] mb-1">Nombre</label>
                   <input
                     type="text"
                     required
                     value={vendedorForm.nombre}
                     onChange={(e) => setVendedorForm({ ...vendedorForm, nombre: e.target.value })}
-                    className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                    className="w-full px-3 py-2 font-mono text-xs bg-[#111827] border border-[#2d4a7a] text-[#e2e8f0] focus:outline-none focus:border-[#3b82f6] rounded-lg"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">Celular</label>
+                  <label className="block font-mono text-[10px] tracking-wider uppercase text-[#64748b] mb-1">Celular</label>
                   <input
                     type="tel"
                     required
                     value={vendedorForm.celular}
                     onChange={(e) => setVendedorForm({ ...vendedorForm, celular: e.target.value })}
-                    className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                    className="w-full px-3 py-2 font-mono text-xs bg-[#111827] border border-[#2d4a7a] text-[#e2e8f0] focus:outline-none focus:border-[#3b82f6] rounded-lg"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">Negocio</label>
+                  <label className="block font-mono text-[10px] tracking-wider uppercase text-[#64748b] mb-1">Negocio</label>
                   <input
                     type="text"
                     required
                     value={vendedorForm.negocio}
                     onChange={(e) => setVendedorForm({ ...vendedorForm, negocio: e.target.value })}
-                    className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                    className="w-full px-3 py-2 font-mono text-xs bg-[#111827] border border-[#2d4a7a] text-[#e2e8f0] focus:outline-none focus:border-[#3b82f6] rounded-lg"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">Dirección</label>
+                  <label className="block font-mono text-[10px] tracking-wider uppercase text-[#64748b] mb-1">Dirección</label>
                   <input
                     type="text"
                     required
                     value={vendedorForm.direccion}
                     onChange={(e) => setVendedorForm({ ...vendedorForm, direccion: e.target.value })}
-                    className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                    className="w-full px-3 py-2 font-mono text-xs bg-[#111827] border border-[#2d4a7a] text-[#e2e8f0] focus:outline-none focus:border-[#3b82f6] rounded-lg"
                   />
                 </div>
                 <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
-                    className="flex-1 py-3 font-mono text-xs tracking-[0.2em] uppercase text-[#0a0807] bg-[#d97644] hover:bg-[#e8854f] transition-colors"
+                    className="flex-1 py-3 font-mono text-xs tracking-[0.2em] uppercase text-white bg-[#3b82f6] hover:bg-[#60a5fa] transition-colors rounded-lg font-bold"
                   >
                     Crear
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowVendedorModal(false)}
-                    className="flex-1 py-3 font-mono text-xs tracking-[0.2em] uppercase text-[#5c554c] border border-[#2a2520] hover:border-[#d97644] hover:text-[#d97644] transition-colors"
+                    className="flex-1 py-3 font-mono text-xs tracking-[0.2em] uppercase text-[#64748b] border border-[#2d4a7a] hover:border-[#3b82f6] hover:text-[#3b82f6] transition-colors rounded-lg"
                   >
                     Cancelar
                   </button>

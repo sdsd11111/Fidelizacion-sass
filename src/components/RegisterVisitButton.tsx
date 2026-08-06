@@ -18,13 +18,11 @@ export default function RegisterVisitButton({ barbershopId, vertical = "BARBERIA
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="font-mono text-xs tracking-[0.2em] uppercase font-bold px-6 py-3 transition-colors shadow-lg"
+        className="font-mono text-xs tracking-[0.2em] uppercase font-bold px-6 py-3 transition-transform hover:scale-105 shadow-lg rounded-md text-black"
         style={{
-          backgroundColor: colors.accent,
-          color: colors.bgPrimary,
+          backgroundColor: "var(--brand-primary, var(--accent, #3b82f6))",
+          color: "#000000",
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.accentHover; }}
-        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = colors.accent; }}
       >
         {vertical === "GIMNASIO" ? "Registrar Asistencia" : "Registrar Corte"}
       </button>

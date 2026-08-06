@@ -92,18 +92,23 @@ export default function SectionTabs({
             role="tab"
             aria-selected={isActive}
             onClick={() => onChange(tab.id)}
+            style={
+              isActive
+                ? {
+                    backgroundColor: "var(--brand-primary, var(--accent))",
+                    color: "#000000",
+                    boxShadow: "0 4px 14px rgba(0, 0, 0, 0.4)",
+                  }
+                : undefined
+            }
             className={[
               "relative flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full shrink-0 snap-start",
               "font-mono text-[10px] tracking-[0.25em] uppercase whitespace-nowrap",
-              "transition-all duration-200 ease-out",
+              "transition-all duration-200 ease-out font-bold",
               "active:scale-95",
-              isActive
-                ? isGym
-                  ? "bg-gradient-to-b from-[#60a5fa] to-[#3b82f6] text-[#070b14] shadow-[0_4px_12px_-2px_rgba(59,130,246,0.55)]"
-                  : "bg-gradient-to-b from-[#e89263] to-[#d97644] text-[#1a0f08] shadow-[0_4px_12px_-2px_rgba(217,118,68,0.55)]"
-                : isGym
-                  ? "text-[#94a3b8] hover:text-[#e2e8f0] hover:bg-[#e2e8f0]/5"
-                  : "text-[#a89e90] hover:text-[#f3ece1] hover:bg-[#f3ece1]/5",
+              !isActive
+                ? "text-zinc-400 hover:text-zinc-100 hover:bg-white/5"
+                : "",
             ].join(" ")}
           >
             {tab.icon && <span className="text-sm">{tab.icon}</span>}
@@ -113,12 +118,8 @@ export default function SectionTabs({
                 className={[
                   "ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold",
                   isActive
-                    ? isGym
-                      ? "bg-[#070b14]/25 text-[#070b14]"
-                      : "bg-[#1a0f08]/25 text-[#1a0f08]"
-                    : isGym
-                      ? "bg-[#1e293b] text-[#94a3b8]"
-                      : "bg-[#3a2f25] text-[#a89e90]",
+                    ? "bg-black/25 text-black"
+                    : "bg-zinc-800 text-zinc-400",
                 ].join(" ")}
               >
                 {tab.badge}

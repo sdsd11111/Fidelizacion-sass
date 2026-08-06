@@ -22,16 +22,27 @@ export default async function PanelLayout({
 
   // Obtener la vertical del negocio para theming
   // Primero intentamos desde la sesión (JWT), fallback a DB
-  let vertical = session.vertical || "BARBERIA";
-  if (!session.vertical) {
-    const shop = await prisma.barbershop.findUnique({
-      where: { id: session.barbershopId },
-      select: { vertical: true },
-    });
-    vertical = shop?.vertical || "BARBERIA";
-  }
+  const shop = await prisma.barbershop.findUnique({
+    where: { id: session.barbershopId },
+    select: {
+      vertical: true,
+      logoUrl: true,
+      brandPrimaryColor: true,
+      brandSecondaryColor: true,
+      brandAccentColor: true,
+    },
+  });
 
-  const theme = await import("@/lib/vertical-theme").then(m => m.getTheme(vertical));
+  const vertical = shop?.vertical || session.vertical || "BARBERIA";
+  const customBranding = {
+    brandPrimaryColor: shop?.brandPrimaryColor,
+    brandSecondaryColor: shop?.brandSecondaryColor,
+    brandAccentColor: shop?.brandAccentColor,
+  };
+
+  const { getTheme, themeStyles } = await import("@/lib/vertical-theme");
+  const theme = getTheme(vertical, customBranding);
+  const styles = themeStyles(vertical, customBranding);
 
   return (
     // overflow-x-hidden defensivo: garantiza que NINGÚN hijo pueda
@@ -42,9 +53,10 @@ export default async function PanelLayout({
       style={{
         backgroundColor: theme.colors.bgPrimary,
         color: theme.colors.textPrimary,
+        ...styles,
       }}
     >
-      <PanelNav logoutAction={logout} isPremium={isPremium} vertical={vertical} />
+      <PanelNav logoUrl={shop?.logoUrl} logoutAction={logout} isPremium={isPremium} vertical={vertical} brandPrimaryColor={shop?.brandPrimaryColor} />
 
       {/* Main Content — con padding top para compensar el header fijo */}
       <main className="pt-16 min-h-screen">

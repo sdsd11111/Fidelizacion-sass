@@ -12,7 +12,7 @@ export default function WalletClientPage({
   shopName: string;
 }) {
   const isGym = vertical === "GIMNASIO";
-  const accent = isGym ? "#3b82f6" : "#d97644";
+  const accent = "var(--brand-primary, var(--accent, #3b82f6))";
 
   const [activeTab, setActiveTab] = useState<"pending" | "balances">("pending");
   const [pendingTxs, setPendingTxs] = useState([]);
@@ -20,11 +20,11 @@ export default function WalletClientPage({
   const [configPlans, setConfigPlans] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const bgCard = isGym ? "bg-[#0f2040]/80 backdrop-blur-xl border border-white/15 rounded-2xl" : "bg-[#131110] border border-[#2a2520]";
-  const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
-  const textPri = isGym ? "text-white" : "text-[#f3ece1]";
-  const textMut = isGym ? "text-slate-400" : "text-[#5c554c]";
-  const textSec = isGym ? "text-slate-300" : "text-[#a89e90]";
+  const bgCard = "bg-[#131110] border border-white/15 rounded-2xl shadow-lg backdrop-blur-xl";
+  const borderC = "border-white/15";
+  const textPri = "text-[#f3ece1]";
+  const textMut = "text-slate-400";
+  const textSec = "text-slate-300";
 
   const fetchData = async () => {
     setLoading(true);

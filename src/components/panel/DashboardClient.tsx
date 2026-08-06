@@ -18,6 +18,9 @@ export interface DashboardClientProps {
   barbershopId: string;
   barbershopName: string;
   vertical?: string;
+  brandPrimaryColor?: string | null;
+  brandSecondaryColor?: string | null;
+  brandAccentColor?: string | null;
   isPremium: boolean;
   healthScore: number;
   healthStatus: string;
@@ -107,6 +110,9 @@ export default function DashboardClient({
   barbershopId,
   barbershopName,
   vertical = "BARBERIA",
+  brandPrimaryColor,
+  brandSecondaryColor,
+  brandAccentColor,
   isPremium,
   healthScore,
   healthStatus,
@@ -126,7 +132,11 @@ export default function DashboardClient({
   motorWidget,
 }: DashboardClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>("reputacion");
-  const theme = getTheme(vertical);
+  const theme = getTheme(vertical, {
+    brandPrimaryColor,
+    brandSecondaryColor,
+    brandAccentColor,
+  });
   const { colors, texts } = theme;
 
   const customersToRecover = [...overdueCustomers, ...preCutCustomers];
@@ -169,7 +179,13 @@ export default function DashboardClient({
         subtitle={healthMessage}
         action={
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-            <div className={`flex items-center gap-4 backdrop-blur-md rounded-2xl px-5 py-4 border ${vertical === "GIMNASIO" ? "bg-[#111827]/75 border-[#2d4a7a]" : "bg-[#0a0807]/75 border-[#2a2520]"}`}>
+            <div
+              style={{
+                backgroundColor: "var(--theme-card, #131110)",
+                borderColor: "var(--theme-border, rgba(255,255,255,0.15))",
+              }}
+              className="flex items-center gap-4 backdrop-blur-md rounded-2xl px-5 py-4 border shadow-lg"
+            >
               <ProgressRing
                 value={healthScore}
                 label={String(healthScore)}
@@ -179,11 +195,11 @@ export default function DashboardClient({
                 vertical={vertical}
               />
               <div className="min-w-0">
-                <div className="flex items-center gap-2 font-display text-xl text-[#f3ece1]">
+                <div className="flex items-center gap-2 font-display text-xl text-zinc-100">
                   <span className={`h-2 w-2 rounded-full shrink-0 ${healthDot}`} />
                   <span className="truncate">{healthStatus}</span>
                 </div>
-                <p className="font-mono text-[9px] uppercase tracking-widest text-[#a89e90] mt-1">
+                <p className="font-mono text-[9px] uppercase tracking-widest text-zinc-400 mt-1">
                   Salud del Negocio
                 </p>
               </div>
@@ -192,10 +208,6 @@ export default function DashboardClient({
           </div>
         }
         overlay={
-          // Wrapper con scroll horizontal en móvil + indicador visual de "desliza"
-          // - En móvil (< md): scroll horizontal con snap, flecha pulsante y
-          //   gradiente negro en el borde derecho que se desvanece al scrollear.
-          // - En desktop (≥ md): tabs centrados a la izquierda, sin flecha.
           <TabsCarousel vertical={vertical}>
             <SectionTabs
               tabs={tabs}
@@ -245,10 +257,10 @@ export default function DashboardClient({
           </div>
 
           <GlassCard padding="lg" vertical={vertical}>
-            <h3 className="font-display text-2xl font-light text-[#f3ece1] mb-2">
+            <h3 className="font-display text-2xl font-light text-zinc-100 mb-2">
               Tu reputación, en tiempo real
             </h3>
-            <p className="text-sm text-[#a89e90] leading-relaxed">
+            <p className="text-sm text-zinc-400 leading-relaxed">
               Cada visita aprobada pide una reseña al cliente. Si sale contento, se publica a
               Google en el momento. Si no, te avisamos antes de que pase algo. Tu score se
               construye automáticamente sin que tengas que hacer nada.
@@ -513,27 +525,27 @@ export default function DashboardClient({
       {/* LIBRO DIARIO */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <h3 className="font-display text-xl sm:text-2xl font-light text-[#f3ece1]">
+          <h3 className="font-display text-xl sm:text-2xl font-light text-zinc-100">
             Libro Diario{" "}
-            <span className="text-[#5c554c] text-sm font-mono">/ Historial de Hoy</span>
+            <span className="text-zinc-500 text-sm font-mono">/ Historial de Hoy</span>
           </h3>
           {isPremium && <ExportDataButton variant="compact" />}
         </div>
 
         {recentVisits.length === 0 ? (
           <GlassCard padding="lg" vertical={vertical}>
-            <p className="font-display italic text-lg text-[#5c554c] mb-2 text-center">
+            <p className="font-display italic text-lg text-zinc-400 mb-2 text-center">
               No hay visitas registradas el día de hoy
             </p>
-            <p className="font-mono text-[10px] text-[#5c554c] tracking-widest uppercase text-center">
+            <p className="font-mono text-[10px] text-zinc-500 tracking-widest uppercase text-center">
               Usa el botón {vertical === "GIMNASIO" ? '"Registrar Asistencia"' : '"Registrar Corte"'} arriba para añadir un registro manual.
             </p>
           </GlassCard>
         ) : (
           <GlassCard padding="sm" className="overflow-x-auto" vertical={vertical}>
-            <table className="w-full text-left font-mono text-xs text-[#a89e90]">
+            <table className="w-full text-left font-mono text-xs text-zinc-400">
               <thead>
-                <tr className={`border-b ${vertical === "GIMNASIO" ? "border-[#1a2540]/60" : "border-[#3a2f25]/60"} text-[#5c554c] uppercase`}>
+                <tr className="border-b border-white/10 text-zinc-500 uppercase">
                   <th className="py-3 px-3">Cliente</th>
                   <th className="py-3 px-3">WhatsApp</th>
                   <th className="py-3 px-3">Estado</th>
@@ -545,9 +557,9 @@ export default function DashboardClient({
                 {recentVisits.map((visit) => (
                   <tr
                     key={visit.id}
-                    className={`border-b ${vertical === "GIMNASIO" ? "border-[#1a2540]/40 hover:bg-[#070b14]/30" : "border-[#2a2520]/40 hover:bg-[#0a0807]/30"} transition-colors`}
+                    className="border-b border-white/10 hover:bg-white/5 transition-colors"
                   >
-                    <td className="py-3 px-3 font-display text-base text-[#f3ece1] font-light">
+                    <td className="py-3 px-3 font-display text-base text-zinc-100 font-light">
                       {visit.customerName}
                     </td>
                     <td className="py-3 px-3">+{visit.customerWhatsapp}</td>

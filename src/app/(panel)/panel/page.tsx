@@ -174,6 +174,9 @@ export default async function DashboardPage() {
       barbershopId={barbershopId}
       barbershopName={barbershop.name}
       vertical={barbershop.vertical || "BARBERIA"}
+      brandPrimaryColor={barbershop.brandPrimaryColor}
+      brandSecondaryColor={barbershop.brandSecondaryColor}
+      brandAccentColor={barbershop.brandAccentColor}
       isPremium={isPremium}
       healthScore={healthScore}
       healthStatus={healthStatus}

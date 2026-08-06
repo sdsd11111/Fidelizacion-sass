@@ -47,6 +47,12 @@ model Barbershop {
   // Director IA — Fuente 2: información del negocio declarada por el dueño (max 2000 chars en frontend)
   businessInfo      String?        @db.Text
 
+  // Branding & Identidad Visual
+  logoUrl             String?        @db.LongText
+  brandPrimaryColor   String?        // ej. "#cda870" o "#e53e3e"
+  brandSecondaryColor String?
+  brandAccentColor    String?
+
   staff             BarberStaff[]
   customers         BarberCustomer[]
   pushSubscriptions PushSubscription[]

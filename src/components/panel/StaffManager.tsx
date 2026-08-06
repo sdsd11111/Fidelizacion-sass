@@ -11,15 +11,15 @@ interface StaffMember {
 
 export default function StaffManager({ vertical = "BARBERIA" }: { vertical?: string }) {
   const isGym = vertical === "GIMNASIO";
-  const accent = isGym ? "#3b82f6" : "#d97644";
+  const accent = "var(--brand-primary, var(--accent, #3b82f6))";
 
   // Theme vars
-  const bgCard  = isGym ? "bg-[#0f2040]/80 backdrop-blur-xl border border-white/15 rounded-2xl" : "bg-[#131110] border border-[#2a2520]";
-  const bgDark  = isGym ? "bg-[#0a1628]"   : "bg-[#0a0807]";
-  const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
-  const textPri = isGym ? "text-white"      : "text-[#f3ece1]";
-  const textMut = isGym ? "text-slate-400"  : "text-[#5c554c]";
-  const textSec = isGym ? "text-slate-300"  : "text-[#a89e90]";
+  const bgCard  = "bg-[var(--theme-card,#131110)] border border-[var(--theme-border,#2a2520)] rounded-2xl shadow-lg backdrop-blur-xl";
+  const bgDark  = "bg-[#0a0807]";
+  const borderC = "border-[var(--theme-border,#2a2520)]";
+  const textPri = "text-[#f3ece1]";
+  const textMut = "text-slate-400";
+  const textSec = "text-slate-300";
 
   const staffEmoji = isGym ? "🏋️" : "💈";
   const staffLabel = isGym ? "entrenador" : "barbero";
@@ -164,7 +164,7 @@ export default function StaffManager({ vertical = "BARBERIA" }: { vertical?: str
   };
 
   return (
-    <div className={`${bgCard} p-5 sm:p-8 space-y-6 overflow-x-hidden min-w-0`}>
+    <div className={`${bgCard} p-5 sm:p-8 space-y-6 overflow-x-hidden min-w-0`} style={{ backgroundColor: "var(--theme-card, #131110)", borderColor: "var(--theme-border, #2a2520)" }}>
       <div className={`border-b ${borderC} pb-4`}>
         <span className={`font-mono text-xs tracking-[0.2em] uppercase ${textMut} break-words`}>
           Equipo de Trabajo / Profesionales
@@ -196,7 +196,7 @@ export default function StaffManager({ vertical = "BARBERIA" }: { vertical?: str
             <div className="min-w-0">
               <label
                 htmlFor="staff-photo-input"
-                className={`cursor-pointer font-mono text-[10px] tracking-wider uppercase px-3 py-1.5 transition-colors inline-block whitespace-nowrap ${isGym ? `bg-white/10 ${textPri} hover:bg-white/20 rounded-lg` : "bg-[#2a2520] text-[#f3ece1] hover:bg-[#3a3530]"}`}
+                className="cursor-pointer font-mono text-[10px] tracking-wider uppercase px-3 py-1.5 transition-colors inline-block whitespace-nowrap bg-white/10 text-white hover:bg-white/20 rounded-lg"
               >
                 {photoPreview ? "Cambiar Foto" : "Subir Foto"}
               </label>
@@ -221,19 +221,14 @@ export default function StaffManager({ vertical = "BARBERIA" }: { vertical?: str
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder={`Nombre del profesional (ej: Carlos, Juan)`}
-              className={`flex-1 min-w-0 border px-4 py-2.5 font-mono text-xs focus:outline-none ${
-                isGym
-                  ? `${bgDark} border-white/15 text-white focus:border-blue-400 rounded-xl placeholder:text-slate-500`
-                  : "bg-[#0a0807] border-[#2a2520] text-[#f3ece1] focus:border-[#d97644]"
-              }`}
+              className="flex-1 min-w-0 border px-4 py-2.5 font-mono text-xs focus:outline-none bg-[#0a0807] border-white/15 text-white focus:border-amber-400 rounded-xl placeholder:text-slate-500"
             />
             <button
               type="submit"
               disabled={submitting || !newName.trim()}
-              className={`px-5 py-2.5 font-mono text-xs tracking-widest uppercase font-bold shrink-0 whitespace-nowrap transition-all disabled:opacity-50 ${isGym ? "rounded-xl" : ""}`}
+              className="px-5 py-2.5 font-mono text-xs tracking-widest uppercase font-bold shrink-0 whitespace-nowrap transition-all disabled:opacity-50 rounded-xl text-black"
               style={{
                 backgroundColor: accent,
-                color: isGym ? "#ffffff" : "#0a0807",
               }}
             >
               {submitting ? "Agregando..." : "+ Agregar"}

@@ -99,13 +99,13 @@ function CustomerDetailModal({
   vertical?: string;
 }) {
   const isGym = vertical === "GIMNASIO";
-  const accent = isGym ? "#3b82f6" : "#d97644";
-  const modalBg = isGym ? "bg-[#0a1628] border-white/20" : "bg-[#131110] border-[#2a2520]";
-  const headerBg = isGym ? "bg-[#0f2040]" : "bg-[#0a0807]";
-  const textPri = isGym ? "text-white" : "text-[#f3ece1]";
-  const textMut = isGym ? "text-slate-400" : "text-[#5c554c]";
-  const textSec = isGym ? "text-slate-300" : "text-[#a89e90]";
-  const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
+  const accent = "var(--brand-primary, var(--accent, #3b82f6))";
+  const modalBg = "bg-[#131110] border-white/20";
+  const headerBg = "bg-[#0a0807]";
+  const textPri = "text-[#f3ece1]";
+  const textMut = "text-slate-400";
+  const textSec = "text-slate-300";
+  const borderC = "border-white/15";
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -309,15 +309,13 @@ function CustomerCard({
   vertical?: string;
 }) {
   const isGym = vertical === "GIMNASIO";
-  const accent = isGym ? "#3b82f6" : "#d97644";
-  const cardBg = isGym
-    ? "bg-[#0f2040]/80 backdrop-blur-xl border-white/15 hover:border-blue-500/50 rounded-2xl"
-    : "bg-[#131110] border-[#2a2520] hover:bg-[#181513]";
-  const boxBg = isGym ? "bg-[#0a1628]" : "bg-[#0a0807]";
-  const textPri = isGym ? "text-white" : "text-[#f3ece1]";
-  const textMut = isGym ? "text-slate-400" : "text-[#5c554c]";
-  const textSec = isGym ? "text-slate-300" : "text-[#a89e90]";
-  const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
+  const accent = "var(--brand-primary, var(--accent, #3b82f6))";
+  const cardBg = "bg-[#131110] border-white/15 hover:border-[var(--brand-primary)]/50 rounded-2xl backdrop-blur-xl shadow-lg";
+  const boxBg = "bg-[#0a0807]";
+  const textPri = "text-[#f3ece1]";
+  const textMut = "text-slate-400";
+  const textSec = "text-slate-300";
+  const borderC = "border-white/15";
 
   const lastVisitStr = customer.lastVisitAt
     ? new Date(customer.lastVisitAt).toLocaleDateString("es-EC", {
@@ -469,9 +467,9 @@ function EmptyState({ tab, vertical = "BARBERIA" }: { tab: string; vertical?: st
   };
   const msg = messages[tab] ?? messages.todos;
 
-  const bgCard = isGym ? "bg-[#0f2040]/80 border-white/15 rounded-2xl" : "bg-[#131110] border-[#2a2520]";
-  const textPri = isGym ? "text-slate-300" : "text-[#5c554c]";
-  const textMut = isGym ? "text-slate-400" : "text-[#5c554c]";
+  const bgCard = "bg-[#131110] border-white/15 rounded-2xl shadow-lg";
+  const textPri = "text-slate-300";
+  const textMut = "text-slate-400";
 
   return (
     <div className={`border ${bgCard} p-12 sm:p-16 text-center`}>

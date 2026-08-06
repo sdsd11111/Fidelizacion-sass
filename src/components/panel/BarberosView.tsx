@@ -179,15 +179,15 @@ export default function BarberosView({
   vertical = "BARBERIA",
 }: BarberosViewProps) {
   const isGym = vertical === "GIMNASIO";
-  const accent = isGym ? "#3b82f6" : "#d97644";
-  const accentLight = isGym ? "#60a5fa" : "#e89263";
+  const accent = "var(--brand-primary, var(--accent, #3b82f6))";
+  const accentLight = "var(--brand-accent, var(--brand-primary, #60a5fa))";
 
   // ── Theme variables ──────────────────────────────────────────
-  const bgCard  = isGym ? "bg-[#0f2040]/80 backdrop-blur-xl border border-white/15 rounded-2xl"   : "bg-[#131110] border border-[#2a2520]";
-  const bgDark  = isGym ? "bg-[#0a1628]"   : "bg-[#0a0807]";
-  const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
-  const divideC = isGym ? "divide-white/10" : "divide-[#1c1917]";
-  const textPri = isGym ? "text-white"      : "text-[#f3ece1]";
+  const bgCard  = "bg-[var(--theme-card,#131110)] border border-[var(--theme-border,#2a2520)] rounded-2xl shadow-lg backdrop-blur-xl";
+  const bgDark  = "bg-[#0a0807]";
+  const borderC = "border-[var(--theme-border,#2a2520)]";
+  const divideC = "divide-[#1c1917]";
+  const textPri = "text-[#f3ece1]";
   const textMut = isGym ? "text-slate-400"  : "text-[#5c554c]";
   const textSec = isGym ? "text-slate-300"  : "text-[#a89e90]";
   const rounded = isGym ? "rounded-2xl"     : "";

@@ -6,14 +6,14 @@ import StaffManager from "@/components/panel/StaffManager";
 
 export default function WhatsAppContent({ vertical = "BARBERIA" }: { vertical?: string }) {
   const isGym = vertical === "GIMNASIO";
-  const accent = isGym ? "#3b82f6" : "#d97644";
+  const accent = "var(--brand-primary, var(--accent, #3b82f6))";
 
   // Theme vars
-  const bgCard  = isGym ? "bg-[#0f2040]/80 backdrop-blur-xl border border-white/15 rounded-2xl" : "bg-[#131110] border border-[#2a2520]";
-  const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
-  const textPri = isGym ? "text-white"      : "text-[#f3ece1]";
-  const textMut = isGym ? "text-slate-400"  : "text-[#5c554c]";
-  const textSec = isGym ? "text-slate-300"  : "text-[#a89e90]";
+  const bgCard  = "bg-[var(--theme-card,#131110)] border border-[var(--theme-border,#2a2520)] rounded-2xl shadow-lg backdrop-blur-xl";
+  const borderC = "border-[var(--theme-border,#2a2520)]";
+  const textPri = "text-[#f3ece1]";
+  const textMut = "text-slate-400";
+  const textSec = "text-slate-300";
 
   const [status, setStatus] = useState<"LOADING" | "CONNECTED" | "WAITING_QR" | "DISCONNECTED" | "ERROR">("LOADING");
   const [qrcode, setQrcode] = useState<string | null>(null);

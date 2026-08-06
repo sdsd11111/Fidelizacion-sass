@@ -9,11 +9,11 @@ interface PushSubscriptionButtonProps {
 
 export default function PushSubscriptionButton({ barbershopId, vertical = "BARBERIA" }: PushSubscriptionButtonProps) {
   const isGym = vertical === "GIMNASIO";
-  const bgCard  = isGym ? "bg-[#0f2040]/80 backdrop-blur-xl border border-white/15 rounded-2xl" : "bg-[#131110] border border-[#2a2520]";
-  const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
-  const textPri = isGym ? "text-white"     : "text-[#f3ece1]";
-  const textMut = isGym ? "text-slate-400" : "text-[#5c554c]";
-  const textSec = isGym ? "text-slate-300" : "text-[#a89e90]";
+  const bgCard  = "border rounded-2xl shadow-lg backdrop-blur-xl";
+  const borderC = "";
+  const textPri = "text-[#f3ece1]";
+  const textMut = "text-slate-400";
+  const textSec = "text-slate-300";
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
   const [loading, setLoading] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
@@ -122,7 +122,7 @@ export default function PushSubscriptionButton({ barbershopId, vertical = "BARBE
   }
 
   return (
-    <div className={`${bgCard} p-6 space-y-4`}>
+    <div className={`${bgCard} p-6 space-y-4`} style={{ backgroundColor: "var(--theme-card, #131110)", borderColor: "var(--theme-border, #2a2520)" }}>
       <div>
         <h4 className={`font-display text-xl font-light ${textPri}`}>Alertas de Pantalla Fija</h4>
         <p className={`font-mono text-xs ${textSec} mt-1`}>
@@ -138,13 +138,16 @@ export default function PushSubscriptionButton({ barbershopId, vertical = "BARBE
         <button
           onClick={subscribeDevice}
           disabled={loading || subscribed}
-          className={`px-4 py-2 font-mono text-xs tracking-wider uppercase border transition-all ${isGym ? "rounded-xl" : ""} ${
+          className={`px-4 py-2 font-mono text-xs tracking-wider uppercase border transition-all rounded-xl font-bold ${
             subscribed
               ? "bg-green-950/20 border-green-800 text-green-400 cursor-default"
-              : isGym
-              ? "bg-[#3b82f6] hover:bg-[#2563eb] text-white border-[#3b82f6] font-bold"
-              : "bg-[#d97644] hover:bg-[#e8854f] text-[#0a0807] border-[#d97644] font-bold"
+              : "text-black"
           }`}
+          style={
+            subscribed
+              ? undefined
+              : { backgroundColor: "var(--brand-primary, var(--accent))", borderColor: "var(--brand-primary, var(--accent))" }
+          }
         >
           {loading ? "CONFIGURANDO..." : subscribed ? "NOTIFICACIONES ACTIVADAS" : "ACTIVAR ALERTAS PUSH"}
         </button>

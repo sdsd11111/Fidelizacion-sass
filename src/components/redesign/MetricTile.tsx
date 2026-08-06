@@ -81,28 +81,18 @@ export default function MetricTile({
   // Ajustes de acentos para gimnasio cuando no es un estado específico (ej. verde)
   const isAccentOrangeOrAmber = accent === "orange" || accent === "amber";
 
-  const cardBg = isGym ? "bg-[#0f2040]/80 backdrop-blur-xl" : "bg-[#1a1614]/70";
-  const cardBorder = isGym 
-    ? (isAccentOrangeOrAmber ? "border-[#3b82f6]/30" : a.border)
-    : a.border;
-  const valueColor = isGym
-    ? (isAccentOrangeOrAmber ? "text-[#3b82f6]" : accent === "neutral" ? "text-[#e2e8f0]" : a.value)
-    : a.value;
-  const iconBg = isGym
-    ? (isAccentOrangeOrAmber ? "bg-[#3b82f6]/10 text-[#3b82f6]" : a.bg)
-    : a.bg;
+  const valueColor = isAccentOrangeOrAmber ? "text-[var(--brand-primary)]" : accent === "neutral" ? "text-[#e2e8f0]" : a.value;
+  const iconBg = isAccentOrangeOrAmber ? "bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]" : a.bg;
 
   const content = (
     <div
+      style={{
+        backgroundColor: "var(--theme-card, #131110)",
+        borderColor: "var(--theme-border, rgba(255,255,255,0.15))",
+      }}
       className={[
-        "group relative rounded-2xl p-5 sm:p-6 h-full border",
-        isGym
-          ? "shadow-[0_8px_24px_rgba(15,32,64,0.5)] transition-all duration-200 ease-out"
-          : "shadow-[0_8px_30px_rgba(0,0,0,0.45)] backdrop-blur-md transition-all duration-200 ease-out",
-        href || onClick ? "hover:-translate-y-0.5 hover:shadow-[0_12px_36px_rgba(0,0,0,0.55)] cursor-pointer" : "",
-        isGym ? "border-white/15" : cardBorder,
-        cardBg,
-        isGym ? "" : cardBorder,
+        "group relative rounded-2xl p-5 sm:p-6 h-full border backdrop-blur-xl shadow-lg transition-all duration-200 ease-out",
+        href || onClick ? "hover:-translate-y-0.5 hover:shadow-2xl cursor-pointer" : "",
         className,
       ].join(" ")}
     >

@@ -113,14 +113,14 @@ const BARBERIA_TEXTS: VerticalTexts = {
 // TEMA: GIMNASIO
 // ═══════════════════════════════════════════════════
 const GIMNASIO_COLORS: VerticalColors = {
-  bgPrimary: "#111827",   // slate-900 — fondo principal más claro que el negro puro
-  bgCard: "#1e2d4a",      // azul-navy medio — cards con profundidad
-  border: "#2d4a7a",      // borde azul visible
-  accent: "#3b82f6",      // blue-500
-  accentHover: "#60a5fa", // blue-400
-  textPrimary: "#e2e8f0", // slate-200
-  textSecondary: "#64748b", // slate-500
-  textMuted: "#94a3b8",   // slate-400
+  bgPrimary: "#09090b",   // zinc-950 — fondo oscuro neutral unificado
+  bgCard: "#18181b",      // zinc-900 — superficie de tarjetas neutra fría
+  border: "#27272a",      // zinc-800 — borde neutral sutil
+  accent: "#3b82f6",      // blue-500 — fallback si no hay logo subido
+  accentHover: "#60a5fa",
+  textPrimary: "#e4e4e7", // zinc-200 — texto principal neutro frío
+  textSecondary: "#71717a", // zinc-500 — texto secundario neutro
+  textMuted: "#a1a1aa",   // zinc-400 — texto muted neutro
   accentBg: "#3b82f6",
   topBar: "#3b82f6",
 };
@@ -157,24 +157,68 @@ const THEMES: Record<Vertical, VerticalTheme> = {
   GIMNASIO: { vertical: "GIMNASIO", colors: GIMNASIO_COLORS, texts: GIMNASIO_TEXTS },
 };
 
-/**
- * Obtiene el tema completo (colores + textos) para una vertical.
- * Siempre retorna un tema válido — default a BARBERIA si el valor es desconocido.
- */
-export function getTheme(vertical?: string | null): VerticalTheme {
-  if (vertical && vertical in THEMES) {
-    return THEMES[vertical as Vertical];
-  }
-  return THEMES.BARBERIA;
+export interface CustomBranding {
+  brandPrimaryColor?: string | null;
+  brandSecondaryColor?: string | null;
+  brandAccentColor?: string | null;
+}
+
+function isDarkColor(hex?: string | null): boolean {
+  if (!hex || !hex.startsWith('#') || hex.length < 7) return false;
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return false;
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance < 0.15;
 }
 
 /**
- * Helper para CSS inline styles desde los colores del tema.
- * Útil para componentes que usan className con Tailwind arbitrary values.
+ * Obtiene el tema completo (colores + textos) para una vertical, aplicando opcionalmente los colores personalizados del logo del negocio.
  */
-export function themeStyles(vertical?: string | null) {
-  const { colors } = getTheme(vertical);
+export function getTheme(vertical?: string | null, customBranding?: CustomBranding): VerticalTheme {
+  const baseTheme = (vertical && vertical in THEMES) ? THEMES[vertical as Vertical] : THEMES.BARBERIA;
+
+  if (!customBranding || (!customBranding.brandPrimaryColor && !customBranding.brandSecondaryColor && !customBranding.brandAccentColor)) {
+    return baseTheme;
+  }
+
+  const primary = customBranding.brandPrimaryColor || baseTheme.colors.accent;
+
+  const customColors: VerticalColors = {
+    ...baseTheme.colors,
+    bgPrimary: "#09090b", // zinc-950 — fondo unificado oscuro neutro
+    bgCard: "#18181b",    // zinc-900 — tarjetas neutras frías (sin café ni oliva)
+    border: `${primary}33`, // borde suave del color del logo
+    accent: primary,
+    accentBg: primary,
+    topBar: primary,
+    accentHover: customBranding.brandAccentColor || primary,
+    textPrimary: "#e4e4e7",  // zinc-200 — neutro frío
+    textSecondary: "#a1a1aa", // zinc-400 — neutro frío
+    textMuted: "#71717a",     // zinc-500 — neutro frío
+  };
+
   return {
+    ...baseTheme,
+    colors: customColors,
+  };
+}
+
+/**
+ * Helper para CSS inline styles desde los colores del tema y branding del logo.
+ */
+export function themeStyles(vertical?: string | null, customBranding?: CustomBranding) {
+  const { colors } = getTheme(vertical, customBranding);
+  return {
+    // Sobreescribe las variables globales de globals.css con los colores del branding
+    "--accent": colors.accent,
+    "--background": colors.bgPrimary,
+    "--card": colors.bgCard,
+    "--border": colors.border,
+    "--foreground": colors.textPrimary,
+    "--muted": colors.textSecondary,
+    // Variables de tema
     "--theme-bg": colors.bgPrimary,
     "--theme-card": colors.bgCard,
     "--theme-border": colors.border,
@@ -183,5 +227,9 @@ export function themeStyles(vertical?: string | null) {
     "--theme-text": colors.textPrimary,
     "--theme-text-secondary": colors.textSecondary,
     "--theme-text-muted": colors.textMuted,
+    "--brand-primary": colors.accent,
+    "--brand-secondary": colors.bgCard,
+    "--brand-accent": colors.accentHover,
   } as React.CSSProperties;
 }
+

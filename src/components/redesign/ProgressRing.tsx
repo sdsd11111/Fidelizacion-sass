@@ -34,8 +34,8 @@ export default function ProgressRing({
   vertical = "BARBERIA",
 }: ProgressRingProps) {
   const isGym = vertical === "GIMNASIO";
-  const ringStartColor = color || (isGym ? "#60a5fa" : "#d97644");
-  const ringEndColor = isGym ? "#3b82f6" : "#e8a33d";
+  const ringStartColor = color || "var(--brand-primary, var(--accent, #3b82f6))";
+  const ringEndColor = color || "var(--brand-primary, var(--accent, #3b82f6))";
   const actualTrackColor = trackColor || (isGym ? "#1e293b" : "#2a221c");
 
   const pct = Math.max(0, Math.min(1, value / max));

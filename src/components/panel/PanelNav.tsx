@@ -9,16 +9,23 @@ export default function PanelNav({
   logoutAction,
   isPremium = false,
   vertical = "BARBERIA",
+  logoUrl,
+  brandPrimaryColor,
 }: {
   logoutAction: () => Promise<void>;
   isPremium?: boolean;
   vertical?: string;
+  logoUrl?: string | null;
+  brandPrimaryColor?: string | null;
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const theme = getTheme(vertical);
   const { colors, texts } = theme;
+
+  // Si hay branding personalizado, lo usamos; si no, el acento del tema base
+  const accent = brandPrimaryColor || colors.accent;
 
   const navLinks = [
     { href: "/panel", label: "Dashboard", exact: true },
@@ -40,12 +47,16 @@ export default function PanelNav({
         {/* Logo */}
         <Link
           href="/panel"
-          className="font-display text-xl font-light tracking-widest transition-colors"
+          className="flex items-center gap-3 font-display text-xl font-light tracking-widest transition-colors"
           style={{ color: colors.textPrimary }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = colors.accent; }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = accent; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = colors.textPrimary; }}
         >
-          {texts.brand}
+          {logoUrl ? (
+            <img src={logoUrl} alt="Logo" className="h-9 w-auto max-w-[120px] object-contain rounded-sm" />
+          ) : (
+            texts.brand
+          )}
         </Link>
 
         {/* Desktop links */}
@@ -58,7 +69,8 @@ export default function PanelNav({
                   href={href}
                   className="font-mono text-xs tracking-[0.2em] uppercase transition-colors"
                   style={{
-                    color: isActive ? colors.accent : colors.textSecondary,
+                    color: isActive ? accent : colors.textSecondary,
+                    ...(isActive ? { borderBottom: `2px solid ${accent}`, paddingBottom: "2px" } : {}),
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) e.currentTarget.style.color = colors.textMuted;
@@ -81,7 +93,7 @@ export default function PanelNav({
               type="submit"
               className="font-mono text-xs tracking-[0.2em] uppercase transition-colors"
               style={{ color: colors.textSecondary }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = colors.accent; }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = accent; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; }}
             >
               Salir
@@ -134,7 +146,7 @@ export default function PanelNav({
                     href={href}
                     className="font-display text-3xl font-light tracking-widest transition-colors"
                     style={{
-                      color: isActive ? colors.accent : colors.textPrimary,
+                      color: isActive ? accent : colors.textPrimary,
                     }}
                     onClick={() => setMenuOpen(false)}
                   >
@@ -150,7 +162,7 @@ export default function PanelNav({
               type="submit"
               className="font-mono text-sm tracking-[0.3em] uppercase transition-colors"
               style={{ color: colors.textSecondary }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = colors.accent; }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = accent; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; }}
             >
               Cerrar Sesión

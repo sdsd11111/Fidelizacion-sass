@@ -44,10 +44,8 @@ export default function PanelHero({
   vertical = "BARBERIA",
 }: PanelHeroProps) {
   const isGym = vertical === "GIMNASIO";
-  // Base background RGB for gradients — must match GIMNASIO_COLORS.bgPrimary
-  const bgR = isGym ? "17,24,39" : "10,8,7";   // #111827 vs #0a0807
-  const bgHex = isGym ? "#111827" : "#0a0807";
-  const borderColor = isGym ? "rgba(45,74,122,0.6)" : "rgba(42,37,32,0.6)";
+  const bgHex = "var(--theme-bg, #09090b)";
+  const borderColor = "var(--theme-border, #2a2520)";
   return (
     <section
       className="relative w-full rounded-3xl border"
@@ -75,7 +73,7 @@ export default function PanelHero({
           className="absolute inset-0"
           style={{
             background:
-              `linear-gradient(180deg, rgba(${bgR},0.45) 0%, rgba(${bgR},0.15) 30%, rgba(${bgR},0.55) 55%, rgba(${bgR},0.95) 88%, ${bgHex} 100%)`,
+              `linear-gradient(180deg, rgba(9,9,11,0.45) 0%, rgba(9,9,11,0.15) 30%, rgba(9,9,11,0.55) 55%, rgba(9,9,11,0.95) 88%, #09090b 100%)`,
           }}
         />
         {/* DEGRADADO LATERAL — refuerza el lado izquierdo en desktop
@@ -84,7 +82,7 @@ export default function PanelHero({
           className="absolute inset-0 hidden md:block"
           style={{
             background:
-              `linear-gradient(90deg, rgba(${bgR},0.92) 0%, rgba(${bgR},0.65) 35%, rgba(${bgR},0.25) 65%, rgba(${bgR},0.05) 100%)`,
+              `linear-gradient(90deg, rgba(9,9,11,0.92) 0%, rgba(9,9,11,0.65) 35%, rgba(9,9,11,0.25) 65%, rgba(9,9,11,0.05) 100%)`,
           }}
         />
 

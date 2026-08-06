@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { extractColorsFromImage } from "@/lib/color-extractor";
 
 interface SettingsProps {
   initialData: {
@@ -11,6 +12,10 @@ interface SettingsProps {
     visitDurationMin: number | null;
     businessInfo: string | null;
     requiredCuts: number;
+    logoUrl?: string | null;
+    brandPrimaryColor?: string | null;
+    brandSecondaryColor?: string | null;
+    brandAccentColor?: string | null;
   };
   isPremium: boolean;
 }
@@ -18,6 +23,7 @@ interface SettingsProps {
 export default function ConfigForm({ initialData, isPremium }: SettingsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +34,56 @@ export default function ConfigForm({ initialData, isPremium }: SettingsProps) {
     visitDurationMin: initialData.visitDurationMin || "",
     businessInfo: initialData.businessInfo || "",
     requiredCuts: initialData.requiredCuts,
+    logoUrl: initialData.logoUrl || "",
+    brandPrimaryColor: initialData.brandPrimaryColor || "#d97644",
+    brandSecondaryColor: initialData.brandSecondaryColor || "#131110",
+    brandAccentColor: initialData.brandAccentColor || "#e08b60",
   });
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    setError(null);
+
+    try {
+      // 1. Mostrar preview local e extraer colores con canvas
+      const objectUrl = URL.createObjectURL(file);
+      const extracted = await extractColorsFromImage(objectUrl);
+
+      // 2. Subir imagen a API
+      const logoFormData = new FormData();
+      logoFormData.append("file", file);
+      logoFormData.append("brandPrimaryColor", extracted.primary);
+      logoFormData.append("brandSecondaryColor", extracted.secondary);
+      logoFormData.append("brandAccentColor", extracted.accent);
+
+      const res = await fetch("/api/barbershop/logo", {
+        method: "POST",
+        body: logoFormData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al subir logo");
+
+      setFormData((prev) => ({
+        ...prev,
+        logoUrl: data.logoUrl,
+        brandPrimaryColor: data.brandPrimaryColor || extracted.primary,
+        brandSecondaryColor: data.brandSecondaryColor || extracted.secondary,
+        brandAccentColor: data.brandAccentColor || extracted.accent,
+      }));
+
+      setSuccess(true);
+      router.refresh();
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err: any) {
+      setError(err.message || "Error al procesar la imagen del logo");
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -48,6 +103,10 @@ export default function ConfigForm({ initialData, isPremium }: SettingsProps) {
         loyaltyMode: formData.loyaltyMode,
         visitDurationMin: formData.visitDurationMin === "" ? null : parseInt(formData.visitDurationMin.toString()),
         requiredCuts: parseInt(formData.requiredCuts.toString()),
+        brandPrimaryColor: formData.brandPrimaryColor,
+        brandSecondaryColor: formData.brandSecondaryColor,
+        brandAccentColor: formData.brandAccentColor,
+        logoUrl: formData.logoUrl || null,
       };
 
       if (isPremium) {
@@ -91,9 +150,113 @@ export default function ConfigForm({ initialData, isPremium }: SettingsProps) {
       
       {success && (
         <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-500 text-sm font-mono">
-          Configuración guardada exitosamente.
+          Configuración e identidad de marca guardadas exitosamente.
         </div>
       )}
+
+      {/* Identidad Visual y Logo */}
+      <div className="bg-[#131110] border border-[#2a2520] p-6 space-y-6">
+        <div>
+          <h2 className="text-lg text-[#f3ece1] font-display font-light tracking-wide mb-1">
+            Logo e Identidad de Marca (Branding)
+          </h2>
+          <p className="text-sm text-[#a89e90] font-sans leading-relaxed">
+            Sube el logo de tu negocio. Al subirlo, se extraerán automáticamente los colores principales para personalizar el diseño del panel y las tarjetas.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 p-4 bg-[#0a0807] border border-[#2a2520]">
+          <div className="w-24 h-24 bg-[#1e1b18] border border-[#2a2520] flex items-center justify-center relative overflow-hidden shrink-0 rounded">
+            {formData.logoUrl ? (
+              <img src={formData.logoUrl} alt="Logo de Negocio" className="w-full h-full object-contain p-1" />
+            ) : (
+              <span className="text-[#5c554c] text-xs font-mono text-center px-2">Sin Logo</span>
+            )}
+          </div>
+
+          <div className="space-y-3 flex-1">
+            <label className="inline-block bg-[#2a2520] hover:bg-[#38322b] text-[#f3ece1] font-mono text-xs uppercase tracking-wider py-2.5 px-4 cursor-pointer transition-colors border border-[#38322b]">
+              {uploadingLogo ? "Analizando y Subiendo..." : formData.logoUrl ? "Cambiar Logo" : "Subir Logo"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+                disabled={uploadingLogo}
+                className="hidden"
+              />
+            </label>
+            <p className="text-xs text-[#5c554c]">Formatos soportados: PNG, JPG, SVG, WebP (Máx 5MB).</p>
+          </div>
+        </div>
+
+        {/* Colores Extraídos / Personalizados */}
+        <div className="space-y-3 pt-2">
+          <label className="text-xs uppercase tracking-widest text-[#a89e90] font-mono block">
+            Paleta de Colores Extraída
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-[#0a0807] p-3 border border-[#2a2520] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[#a89e90] font-mono">Primario</span>
+                <input
+                  type="color"
+                  name="brandPrimaryColor"
+                  value={formData.brandPrimaryColor}
+                  onChange={handleChange}
+                  className="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+                />
+              </div>
+              <input
+                type="text"
+                name="brandPrimaryColor"
+                value={formData.brandPrimaryColor}
+                onChange={handleChange}
+                className="w-full bg-[#131110] border border-[#2a2520] text-[#f3ece1] text-xs p-1.5 font-mono uppercase"
+              />
+            </div>
+
+            <div className="bg-[#0a0807] p-3 border border-[#2a2520] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[#a89e90] font-mono">Secundario</span>
+                <input
+                  type="color"
+                  name="brandSecondaryColor"
+                  value={formData.brandSecondaryColor}
+                  onChange={handleChange}
+                  className="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+                />
+              </div>
+              <input
+                type="text"
+                name="brandSecondaryColor"
+                value={formData.brandSecondaryColor}
+                onChange={handleChange}
+                className="w-full bg-[#131110] border border-[#2a2520] text-[#f3ece1] text-xs p-1.5 font-mono uppercase"
+              />
+            </div>
+
+            <div className="bg-[#0a0807] p-3 border border-[#2a2520] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[#a89e90] font-mono">Acento</span>
+                <input
+                  type="color"
+                  name="brandAccentColor"
+                  value={formData.brandAccentColor}
+                  onChange={handleChange}
+                  className="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+                />
+              </div>
+              <input
+                type="text"
+                name="brandAccentColor"
+                value={formData.brandAccentColor}
+                onChange={handleChange}
+                className="w-full bg-[#131110] border border-[#2a2520] text-[#f3ece1] text-xs p-1.5 font-mono uppercase"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Información del Negocio — Solo PREMIUM */}
       {isPremium && (

@@ -22,6 +22,10 @@ export default async function ConfiguracionPage() {
       businessInfo: true,
       requiredCuts: true,
       vertical: true,
+      logoUrl: true,
+      brandPrimaryColor: true,
+      brandSecondaryColor: true,
+      brandAccentColor: true,
     },
   });
 

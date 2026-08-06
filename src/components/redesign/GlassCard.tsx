@@ -25,20 +25,20 @@ export default function GlassCard({
 
   return (
     <div
+      style={{
+        backgroundColor: "var(--theme-card, #18181b)",
+        borderColor: "var(--theme-border, #27272a)",
+      }}
       className={[
-        "relative rounded-2xl",
-        isGym
-          ? "bg-[#0f2040]/80 backdrop-blur-xl border border-white/15 rounded-2xl"
-          : "bg-[#1a1614]/70 border border-[#3a2f25]/80 backdrop-blur-md rounded-2xl",
-        isGym ? "shadow-[0_8px_30px_rgba(15,32,64,0.6)]" : "shadow-[0_8px_30px_rgba(0,0,0,0.55)]",
+        "relative rounded-2xl border backdrop-blur-xl shadow-lg",
         padMap[padding],
-        elevated ? (isGym ? "ring-1 ring-[#3b82f6]/20" : "ring-1 ring-[#d97644]/15") : "",
+        elevated ? "ring-1 ring-[var(--brand-primary)]/20" : "",
         className,
       ].join(" ")}
     >
       <div
         aria-hidden
-        className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent ${isGym ? "via-[#e2e8f0]/15" : "via-[#f3ece1]/15"} to-transparent`}
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
       />
       {children}
     </div>

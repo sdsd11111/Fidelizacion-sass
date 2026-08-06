@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import WhatsAppContent from "@/components/panel/WhatsAppContent";
 import ConfigTabs from "@/components/panel/ConfigTabs";
 import WalletConfigSection from "@/components/panel/WalletConfigSection";
+import LogoBrandingSection from "@/components/panel/LogoBrandingSection";
 
 export default async function WhatsAppPage() {
   const session = await verifySession();
@@ -16,11 +17,21 @@ export default async function WhatsAppPage() {
 
   const isPremium = await isPremiumBarbershop(barbershopId);
 
-  // Obtener vertical para theming, whatsappNumber, currentBoxCode y name
+  // Obtener datos del negocio para theming y branding
   const shopBase = await prisma.barbershop.findUnique({
     where: { id: barbershopId },
-    select: { vertical: true, whatsappNumber: true, currentBoxCode: true, name: true },
+    select: {
+      vertical: true,
+      whatsappNumber: true,
+      currentBoxCode: true,
+      name: true,
+      logoUrl: true,
+      brandPrimaryColor: true,
+      brandSecondaryColor: true,
+      brandAccentColor: true,
+    },
   });
+
   const vertical = shopBase?.vertical || "BARBERIA";
   const isGym = vertical === "GIMNASIO";
 
@@ -36,6 +47,10 @@ export default async function WhatsAppPage() {
         businessInfo: true,
         requiredCuts: true,
         vertical: true,
+        logoUrl: true,
+        brandPrimaryColor: true,
+        brandSecondaryColor: true,
+        brandAccentColor: true,
       },
     });
 
@@ -44,7 +59,7 @@ export default async function WhatsAppPage() {
     }
 
     return (
-      <div className="space-y-6 overflow-x-hidden">
+      <div className="space-y-8 overflow-x-hidden">
         <header>
           <p className="font-mono text-xs tracking-[0.3em] uppercase mb-2" style={{ color: isGym ? "#64748b" : "#5c554c" }}>
             {isGym ? "Ajustes del Gimnasio" : "Ajustes de la Barbería"}
@@ -54,7 +69,17 @@ export default async function WhatsAppPage() {
           </h2>
         </header>
 
+        {/* Sección de Subida de Logo & Branding */}
+        <LogoBrandingSection
+          initialLogoUrl={shopBase?.logoUrl}
+          initialPrimaryColor={shopBase?.brandPrimaryColor}
+          initialSecondaryColor={shopBase?.brandSecondaryColor}
+          initialAccentColor={shopBase?.brandAccentColor}
+          vertical={vertical}
+        />
+
         <ConfigTabs configData={barbershop} />
+
         {isGym && (
           <WalletConfigSection
             whatsappNumber={shopBase?.whatsappNumber || ""}
@@ -67,7 +92,7 @@ export default async function WhatsAppPage() {
     );
   }
 
-  // PRO: solo WhatsApp + StaffManager + WalletConfigSection (si es Gym)
+  // PRO: solo WhatsApp + StaffManager + LogoBranding + WalletConfigSection (si es Gym)
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <header className="mb-8">
@@ -79,7 +104,17 @@ export default async function WhatsAppPage() {
         </h2>
       </header>
 
+      {/* Sección de Subida de Logo & Branding */}
+      <LogoBrandingSection
+        initialLogoUrl={shopBase?.logoUrl}
+        initialPrimaryColor={shopBase?.brandPrimaryColor}
+        initialSecondaryColor={shopBase?.brandSecondaryColor}
+        initialAccentColor={shopBase?.brandAccentColor}
+        vertical={vertical}
+      />
+
       <WhatsAppContent vertical={vertical} />
+
       {isGym && (
         <WalletConfigSection
           whatsappNumber={shopBase?.whatsappNumber || ""}

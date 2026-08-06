@@ -22,7 +22,7 @@ export default function WalletConfigSection({
   vertical?: string;
 }) {
   const isGym = vertical === "GIMNASIO";
-  const accent = isGym ? "#3b82f6" : "#d97644";
+  const accent = "var(--brand-primary, var(--accent, #3b82f6))";
 
   const [plans, setPlans] = useState<PlanItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,11 +33,15 @@ export default function WalletConfigSection({
   const [planPrice, setPlanPrice] = useState("");
   const [planPercentage, setPlanPercentage] = useState("");
 
-  const bgCard = isGym ? "bg-[#0f2040]/80 backdrop-blur-xl border border-white/15 rounded-2xl" : "bg-[#131110] border border-[#2a2520]";
-  const borderC = isGym ? "border-white/15" : "border-[#2a2520]";
-  const textPri = isGym ? "text-white" : "text-[#f3ece1]";
-  const textMut = isGym ? "text-slate-400" : "text-[#5c554c]";
-  const textSec = isGym ? "text-slate-300" : "text-[#a89e90]";
+  const bgCard = "border rounded-2xl shadow-lg backdrop-blur-xl";
+  const borderC = "";
+  const textPri = "text-[#f3ece1]";
+  const textMut = "text-slate-400";
+  const textSec = "text-slate-300";
+  // Inline styles con CSS variables para theming dinámico
+  const cardStyle = { backgroundColor: "var(--theme-card, #131110)", borderColor: "var(--theme-border, #2a2520)" } as React.CSSProperties;
+  const accentStyle = { color: "var(--brand-primary, var(--accent))" } as React.CSSProperties;
+  const buttonStyle = { backgroundColor: "var(--brand-primary, var(--accent))", borderColor: "var(--brand-primary, var(--accent))" } as React.CSSProperties;
 
   // Cargar configuración existente
   useEffect(() => {
@@ -124,7 +128,7 @@ export default function WalletConfigSection({
       {/* SECCIÓN 1: CÓDIGOS QR VITALES DEL GIMNASIO */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* QR 1: TIENDA */}
-        <div className={`${bgCard} p-6 space-y-4`}>
+        <div className={`${bgCard} p-6 space-y-4`} style={cardStyle}>
           <div className="space-y-1">
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: accent }}>
               🛍️ QR TIENDA
@@ -154,7 +158,7 @@ export default function WalletConfigSection({
         </div>
 
         {/* QR 2: MENSUALIDAD / REFERIDOS */}
-        <div className={`${bgCard} p-6 space-y-4`}>
+        <div className={`${bgCard} p-6 space-y-4`} style={cardStyle}>
           <div className="space-y-1">
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: accent }}>
               💪 QR REFERIDOS
@@ -184,7 +188,7 @@ export default function WalletConfigSection({
         </div>
 
         {/* QR 3: EVALUACIÓN GENERAL DE ENTRENADORES */}
-        <div className={`${bgCard} p-6 space-y-4`}>
+        <div className={`${bgCard} p-6 space-y-4`} style={cardStyle}>
           <div className="space-y-1">
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-emerald-400">
               ⭐ QR GENERAL EVALUACIÓN
@@ -215,7 +219,7 @@ export default function WalletConfigSection({
       </div>
 
       {/* SECCIÓN 2: CONFIGURACIÓN DE PLANES Y PORCENTAJES DE REFERIDO */}
-      <div className={`${bgCard} p-6 space-y-6`}>
+      <div className={`${bgCard} p-6 space-y-6`} style={cardStyle}>
         <div className={`border-b ${borderC} pb-4 flex justify-between items-center`}>
           <div>
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: accent }}>
@@ -287,9 +291,7 @@ export default function WalletConfigSection({
           <button
             type="submit"
             disabled={!planName.trim() || !planPrice || !planPercentage}
-            className={`w-full py-2 font-mono text-xs tracking-wider uppercase font-bold text-white transition-all disabled:opacity-50 ${
-              isGym ? "rounded-xl" : ""
-            }`}
+            className="w-full py-2 font-mono text-xs tracking-wider uppercase font-bold text-black transition-all disabled:opacity-50 rounded-xl"
             style={{ backgroundColor: accent }}
           >
             + Agregar Plan

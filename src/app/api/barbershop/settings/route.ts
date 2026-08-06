@@ -9,6 +9,10 @@ const settingsSchema = z.object({
   visitDurationMin: z.number().min(5).max(480).nullable().optional(),
   businessInfo: z.string().max(2000).nullable().optional(),
   requiredCuts: z.number().min(2).max(50).optional(),
+  logoUrl: z.string().nullable().optional(),
+  brandPrimaryColor: z.string().nullable().optional(),
+  brandSecondaryColor: z.string().nullable().optional(),
+  brandAccentColor: z.string().nullable().optional(),
 });
 
 export async function PATCH(request: NextRequest) {
@@ -38,6 +42,10 @@ export async function PATCH(request: NextRequest) {
     if (data.visitDurationMin !== undefined) updateData.visitDurationMin = data.visitDurationMin;
     if (data.businessInfo !== undefined) updateData.businessInfo = data.businessInfo;
     if (data.requiredCuts !== undefined) updateData.requiredCuts = data.requiredCuts;
+    if (data.logoUrl !== undefined) updateData.logoUrl = data.logoUrl;
+    if (data.brandPrimaryColor !== undefined) updateData.brandPrimaryColor = data.brandPrimaryColor;
+    if (data.brandSecondaryColor !== undefined) updateData.brandSecondaryColor = data.brandSecondaryColor;
+    if (data.brandAccentColor !== undefined) updateData.brandAccentColor = data.brandAccentColor;
 
     const updated = await prisma.barbershop.update({
       where: { id: barbershopId },
@@ -53,6 +61,10 @@ export async function PATCH(request: NextRequest) {
         visitDurationMin: updated.visitDurationMin,
         businessInfo: updated.businessInfo,
         requiredCuts: updated.requiredCuts,
+        logoUrl: updated.logoUrl,
+        brandPrimaryColor: updated.brandPrimaryColor,
+        brandSecondaryColor: updated.brandSecondaryColor,
+        brandAccentColor: updated.brandAccentColor,
       },
     });
   } catch (error) {

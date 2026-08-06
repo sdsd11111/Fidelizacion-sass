@@ -23,9 +23,8 @@ const CreateBarbershopSchema = z.object({
   salesAgent: z.string().optional(),
   ownerPhone: z.string().optional(),
   planType: z.enum(["PRO", "PREMIUM"]).default("PRO"),
-  // Vertical del negocio: BARBERIA (default, mantiene retrocompatibilidad) o GIMNASIO.
-  // Es un duplicado exacto del flujo existente — la lógica del panel no cambia.
-  vertical: z.enum(["BARBERIA", "GIMNASIO"]).default("BARBERIA"),
+  // Vertical del negocio: GIMNASIO (por defecto obligatoria).
+  vertical: z.enum(["BARBERIA", "GIMNASIO"]).default("GIMNASIO"),
 });
 
 // GET /api/admin/barbershops - Listar todas las barberías

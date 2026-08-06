@@ -199,7 +199,7 @@ export default function AdminDashboard() {
         setWhatsappNumber("");
         setGoogleMapsUrl("");
         setOwnerPhone("");
-        setVertical("BARBERIA");
+        setVertical("GIMNASIO");
         setSalesAgent("");
         fetchBarbershops(adminSecret);
       } else {
@@ -412,21 +412,16 @@ export default function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Formulario de Onboarding */}
-          <div className={`lg:col-span-1 p-8 space-y-6 rounded-2xl border ${
-            vertical === "GIMNASIO"
-              ? "bg-[#1e2d4a] border-[#2d4a7a]"
-              : "bg-[#131110] border-[#2a2520]"
-          }`}>
-            <h3 className={`font-display text-2xl font-light ${
-              vertical === "GIMNASIO" ? "text-[#3b82f6]" : "text-[#d97644]"
-            }`}>
-              {vertical === "GIMNASIO" ? "Nuevo Gimnasio (Onboarding)" : "Nueva Barbería (Onboarding)"}
+          {/* Formulario de Onboarding (Exclusivo Gimnasios) */}
+          <div className="lg:col-span-1 p-8 space-y-6 rounded-2xl border bg-[#1e2d4a] border-[#2d4a7a]">
+            <h3 className="font-display text-2xl font-light text-[#3b82f6]">
+              Nuevo Gimnasio (Onboarding)
             </h3>
 
             {createdPin && (
               <div className="p-4 bg-green-950/40 border border-green-800 text-green-400 font-mono text-xs rounded space-y-2 animate-pulse-short">
                 <p className="font-bold text-[10px] tracking-wider uppercase">
-                  {vertical === "GIMNASIO" ? "✨ ¡GIMNASIO CREADO CON ÉXITO!" : "✨ ¡BARBERÍA CREADA CON ÉXITO!"}
+                  ✨ ¡GIMNASIO CREADO CON ÉXITO!
                 </p>
                 <p>Nombre: <span className="text-white">{createdShopName}</span></p>
                 <div className="p-3 bg-[#0a0807] border border-green-900 text-center rounded">
@@ -434,9 +429,7 @@ export default function AdminDashboard() {
                   <p className="text-2xl font-bold text-white tracking-[0.2em]">{createdPin}</p>
                 </div>
                 <p className="text-[9px] text-[#5c554c] text-center">
-                  {vertical === "GIMNASIO"
-                    ? "Pásale este código al dueño/encargado del gimnasio para que ingrese desde /login."
-                    : "Pásale este código al barbero para que ingrese desde /login."}
+                  Pásale este código al dueño/encargado del gimnasio para que ingrese desde /login.
                 </p>
               </div>
             )}
@@ -444,47 +437,15 @@ export default function AdminDashboard() {
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
-                  Vertical del Negocio
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setVertical("BARBERIA")}
-                    className={`py-2 px-3 font-mono text-xs uppercase border rounded-lg transition-all flex items-center justify-center gap-2 ${
-                      vertical === "BARBERIA"
-                        ? "bg-[#d97644]/20 border-[#d97644] text-[#d97644] font-bold"
-                        : "bg-[#0a0807] border-[#2a2520] text-[#5c554c] hover:text-[#f3ece1]"
-                    }`}
-                  >
-                    <span>💈</span> Barbería
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setVertical("GIMNASIO")}
-                    className={`py-2 px-3 font-mono text-xs uppercase border rounded-lg transition-all flex items-center justify-center gap-2 ${
-                      vertical === "GIMNASIO"
-                        ? "bg-[#3b82f6]/20 border-[#3b82f6] text-[#3b82f6] font-bold"
-                        : "bg-[#0a0807] border-[#2a2520] text-[#5c554c] hover:text-[#f3ece1]"
-                    }`}
-                  >
-                    <span>🏋️</span> Gimnasio
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
-                  Nombre de{vertical === "GIMNASIO" ? "l Gimnasio" : " la Barbería"}
+                  Nombre del Gimnasio
                 </label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={vertical === "GIMNASIO" ? "Ej. Iron Gym Fitness" : "Ej. Barbería El Elegante"}
-                  className={`w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border text-[#f3ece1] focus:outline-none transition-colors ${
-                    vertical === "GIMNASIO" ? "border-white/15 focus:border-[#3b82f6]" : "border-[#2a2520] focus:border-[#d97644]"
-                  }`}
+                  placeholder="Ej. Iron Gym Fitness"
+                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border text-[#f3ece1] focus:outline-none transition-colors border-white/15 focus:border-[#3b82f6]"
                 />
               </div>
 
@@ -498,25 +459,9 @@ export default function AdminDashboard() {
                   value={whatsappNumber}
                   onChange={(e) => setWhatsappNumber(e.target.value)}
                   placeholder="Ej. 593963410409"
-                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#3b82f6]"
                 />
               </div>
-
-              {vertical === "BARBERIA" && (
-              <div>
-                <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
-                  Cortes Requeridos para Premio
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={1}
-                  value={requiredCuts}
-                  onChange={(e) => setRequiredCuts(Number(e.target.value))}
-                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
-                />
-              </div>
-              )}
 
               <div>
                 <label className="block font-mono text-[10px] tracking-wider uppercase text-[#5c554c] mb-1">
@@ -527,7 +472,7 @@ export default function AdminDashboard() {
                   value={googleMapsUrl}
                   onChange={(e) => setGoogleMapsUrl(e.target.value)}
                   placeholder="Pegar enlace directo de reseña Google"
-                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#3b82f6]"
                 />
               </div>
 
@@ -540,7 +485,7 @@ export default function AdminDashboard() {
                   value={ownerPhone}
                   onChange={(e) => setOwnerPhone(e.target.value)}
                   placeholder="Ej. 593991234567"
-                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#3b82f6]"
                 />
               </div>
 
@@ -553,69 +498,29 @@ export default function AdminDashboard() {
                   value={salesAgent}
                   onChange={(e) => setSalesAgent(e.target.value)}
                   placeholder="Ej. Juan Pérez / Código Vendedor"
-                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#d97644]"
+                  className="w-full px-3 py-2 font-mono text-xs bg-[#0a0807] border border-[#2a2520] text-[#f3ece1] focus:outline-none focus:border-[#3b82f6]"
                 />
               </div>
 
               <button
                 type="submit"
-                className={`w-full py-3 font-mono text-xs tracking-[0.2em] uppercase transition-colors pt-2 font-bold ${
-                  vertical === "GIMNASIO"
-                    ? "bg-[#3b82f6] hover:bg-[#60a5fa] text-white"
-                    : "bg-[#d97644] hover:bg-[#e8854f] text-[#0a0807]"
-                }`}
+                className="w-full py-3 font-mono text-xs tracking-[0.2em] uppercase transition-colors pt-2 font-bold bg-[#3b82f6] hover:bg-[#60a5fa] text-white rounded-lg"
               >
-                {vertical === "GIMNASIO" ? "Crear Gimnasio" : "Crear Barbería"}
+                Crear Gimnasio
               </button>
             </form>
           </div>
 
-          {/* Listado y Gestión */}
+          {/* Listado y Gestión (Exclusivo Gimnasios) */}
           <div className="lg:col-span-2 bg-[#1e2d4a] border border-[#2d4a7a] p-8 space-y-6 rounded-2xl">
             <div className="flex justify-between items-center flex-wrap gap-4">
               <h3 className="font-display text-2xl font-light text-white">
-                {verticalFilter === "GIMNASIO"
-                  ? `Gimnasios Registrados (${barbershops.filter((s) => (s.vertical || "BARBERIA") === "GIMNASIO").length})`
-                  : verticalFilter === "BARBERIA"
-                  ? `Barberías Registradas (${barbershops.filter((s) => (s.vertical || "BARBERIA") === "BARBERIA").length})`
-                  : `Negocios Registrados (${barbershops.length})`}
+                Gimnasios Registrados ({barbershops.filter((s) => s.vertical === "GIMNASIO" || !s.vertical).length})
               </h3>
-              <div className="flex border border-[#2a2520] rounded-lg overflow-hidden">
-                <button
-                  onClick={() => setVerticalFilter("BARBERIA")}
-                  className={`px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-colors ${
-                    verticalFilter === "BARBERIA"
-                      ? "bg-[#d97644] text-[#0a0807] font-bold"
-                      : "text-[#5c554c] hover:text-[#f3ece1]"
-                  }`}
-                >
-                  💈 Barberías
-                </button>
-                <button
-                  onClick={() => setVerticalFilter("GIMNASIO")}
-                  className={`px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-colors border-l border-[#2a2520] ${
-                    verticalFilter === "GIMNASIO"
-                      ? "bg-[#3b82f6] text-white font-bold"
-                      : "text-[#5c554c] hover:text-[#f3ece1]"
-                  }`}
-                >
-                  🏋️ Gimnasios
-                </button>
-                <button
-                  onClick={() => setVerticalFilter("ALL")}
-                  className={`px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-colors border-l border-[#2d4a7a] ${
-                    verticalFilter === "ALL"
-                      ? "bg-[#94a3b8] text-[#111827] font-bold"
-                      : "text-[#64748b] hover:text-[#e2e8f0]"
-                  }`}
-                >
-                  Todos
-                </button>
-              </div>
             </div>
-            {barbershops.filter((s) => verticalFilter === "ALL" || (s.vertical || "BARBERIA") === verticalFilter).length === 0 ? (
+            {barbershops.filter((s) => s.vertical === "GIMNASIO" || !s.vertical).length === 0 ? (
               <p className="font-mono text-xs text-[#64748b]">
-                No hay {verticalFilter === "GIMNASIO" ? "gimnasios" : verticalFilter === "BARBERIA" ? "barberías" : "negocios"} registrados aún.
+                No hay gimnasios registrados aún.
               </p>
             ) : (
               <div className="overflow-x-auto">
@@ -633,7 +538,7 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody>
                     {barbershops
-                      .filter((s) => verticalFilter === "ALL" || (s.vertical || "BARBERIA") === verticalFilter)
+                      .filter((s) => (s.vertical || "GIMNASIO") === "GIMNASIO")
                       .map((shop) => (
                       <tr key={shop.id} className="border-b border-[#2d4a7a]/30 hover:bg-[#111827]/50 transition-colors">
                         {editingId === shop.id ? (
